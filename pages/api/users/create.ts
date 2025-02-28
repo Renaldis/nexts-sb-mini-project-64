@@ -28,5 +28,5 @@ export default async function handler(
     .values(payload)
     .returning({ insertedId: users.id });
 
-  res.status(200).json({ data });
+  return res.status(200).json({ data });
 }

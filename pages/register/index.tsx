@@ -1,6 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { redirect } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().nonempty({ message: "Name is required" }),
@@ -27,6 +30,7 @@ const formSchema = z.object({
 });
 
 export default function Register() {
+  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,8 +56,34 @@ export default function Register() {
         method: "POST",
         body: JSON.stringify(values),
       });
+
+      if (response.ok) {
+        Swal.fire({
+          title: "Success!",
+          text: "Registration successful!",
+          icon: "success",
+          confirmButtonText: "OK",
+          timer: 3000,
+          showConfirmButton: false,
+        }).then(() => {
+          router.push("/login");
+        });
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: "Registration failed!",
+          icon: "error",
+          confirmButtonText: "Try Again",
+        });
+      }
     } catch (error) {
       console.log(error);
+      Swal.fire({
+        title: "Error!",
+        text: "Registration failed!",
+        icon: "error",
+        confirmButtonText: "Try Again",
+      });
     } finally {
       setLoading(false);
       reset();
