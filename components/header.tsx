@@ -3,15 +3,20 @@ import {
   MenubarContent,
   MenubarItem,
   MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, ChevronDown, Clock, LogOut, UserIcon } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Bell, ChevronDown, LogOut, UserIcon } from "lucide-react";
 import Link from "next/link";
+import Cookies from "js-cookie";
+import { useRouter } from "next/router";
 
 const Header = () => {
+  const router = useRouter();
+  async function handleLogout() {
+    Cookies.remove("sb_token");
+    router.reload();
+  }
   return (
     <header className="border-b w-full p-2">
       <div className="flex justify-between items-center">
@@ -41,7 +46,10 @@ const Header = () => {
                     Notifications
                   </MenubarItem>
                 </Link>
-                <MenubarItem className="cursor-pointer">
+                <MenubarItem
+                  className="cursor-pointer"
+                  onClick={() => handleLogout()}
+                >
                   <LogOut />
                   Logout
                 </MenubarItem>

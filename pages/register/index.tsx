@@ -16,6 +16,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { redirect } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 
 const formSchema = z.object({
   name: z.string().nonempty({ message: "Name is required" }),
@@ -30,6 +32,7 @@ const formSchema = z.object({
 });
 
 export default function Register() {
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -52,7 +55,7 @@ export default function Register() {
     console.log(values);
 
     try {
-      const response = await fetch("/api/users/create", {
+      const response = await fetch("/api/register", {
         method: "POST",
         body: JSON.stringify(values),
       });
@@ -179,11 +182,20 @@ export default function Register() {
                   Password <span className="text-red-700">*</span>
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Password ..."
-                    type="password"
-                    {...field}
-                  />
+                  <div className="relative">
+                    <Input
+                      placeholder="Password ..."
+                      type={`${showPassword ? "text" : "password"}`}
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    >
+                      {showPassword ? <Eye size={15} /> : <EyeOff size={15} />}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -196,6 +208,12 @@ export default function Register() {
           >
             {loading ? "Loading..." : "Register"}
           </Button>
+          <span className="text-sm">
+            Do you have account ?
+            <Link href="/login" className="ml-2 font-semibold hover:border-b">
+              Login Now
+            </Link>
+          </span>
         </form>
       </Form>
     </div>

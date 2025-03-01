@@ -1,3 +1,11 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import Swal from "sweetalert2";
+import { useRouter } from "next/router";
+import Cookies from "js-cookie";
+
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -8,16 +16,140 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { z } from "zod";
+import { useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 
 const formSchema = z.object({
-  username: z.string().min(2).max(50),
+  email: z.string().nonempty({ message: "Email is required" }),
+  password: z.string().min(8),
 });
 
 export default function Login() {
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setLoading(true);
+    console.log(values);
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        body: JSON.stringify(values),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          title: "Success!",
+          text: "Registration successful!",
+          icon: "success",
+          confirmButtonText: "OK",
+          timer: 3000,
+          showConfirmButton: false,
+        }).then(() => {
+          Cookies.set("sb_token", data?.token, {
+            expires: new Date(data?.expires_at),
+            path: "/",
+          });
+          router.reload();
+        });
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: "Registration failed!",
+          icon: "error",
+          confirmButtonText: "Try Again",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error!",
+        text: "Registration failed!",
+        icon: "error",
+        confirmButtonText: "Try Again",
+      });
+    }
+  }
+
   return (
     <div>
-      <h1>Login</h1>
+      <h1 className="text-center font-bold text-xl">Login</h1>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-3 w-[70%] mx-auto"
+        >
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Email <span className="text-red-700">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="Email ..." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Password <span className="text-red-700">*</span>
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      placeholder="Password ..."
+                      type={`${showPassword ? "text" : "password"}`}
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    >
+                      {showPassword ? <Eye size={15} /> : <EyeOff size={15} />}
+                    </button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button
+            type="submit"
+            className="w-full bg-blue-600"
+            disabled={loading}
+          >
+            {loading ? "Loading..." : "Login"}
+          </Button>
+          <span className="text-sm">
+            Don't have an account ?
+            <Link
+              href="/register"
+              className="ml-2 font-semibold hover:border-b"
+            >
+              Register Now
+            </Link>
+          </span>
+        </form>
+      </Form>
     </div>
   );
 }
