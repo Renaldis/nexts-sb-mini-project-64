@@ -93,7 +93,7 @@ export default function Register() {
     }
   }
   return (
-    <div>
+    <div className="h-screen">
       <h1 className="text-center font-bold text-xl">Register</h1>
       <Form {...form}>
         <form

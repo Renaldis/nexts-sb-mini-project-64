@@ -3,18 +3,27 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+const SECRET_KEY = process.env.JWT_SECRET || "default_secret";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   if (req.method !== "POST") {
-    res.status(405).json({ data: { message: "Method not allowed" } });
+    return res
+      .status(405)
+      .json({ success: false, message: "Method not allowed" });
   }
 
-  const { email, password } = JSON.parse(req.body);
-
   try {
+    console.log("Incoming request body:", req.body);
+
+    const { email, password } = req.body;
+
+    console.log("Looking for user with email:", email);
+
     const user = await db
       .select()
       .from(users)
@@ -22,20 +31,48 @@ export default async function handler(
       .limit(1);
 
     if (!user.length) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      console.log("User not found");
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid email or password" });
     }
 
     const storedUser = user[0];
 
-    // Cek apakah password cocok
+    // Cek password
     const isMatch = await bcrypt.compare(password, storedUser.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      console.log("Password mismatch");
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid email or password" });
     }
 
-    res.status(200).json({ message: "Login successful" });
+    // Buat token JWT
+    const token = jwt.sign(
+      { id: storedUser.id, email: storedUser.email },
+      SECRET_KEY,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    console.log("Login successful, sending response");
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      data: {
+        token,
+        expires_at: new Date(Date.now() + 3600000),
+        userId: storedUser.id,
+      },
+    });
   } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error during login:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
 }

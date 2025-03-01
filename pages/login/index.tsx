@@ -9,14 +9,13 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
@@ -39,26 +38,30 @@ export default function Login() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
-    console.log(values);
+    console.log("Submitting values:", values);
+
     try {
       const response = await fetch("/api/login", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
 
       const data = await response.json();
+      console.log("Response from backend:", data);
 
       if (response.ok) {
         Swal.fire({
           title: "Success!",
-          text: "Registration successful!",
+          text: "Login successful!",
           icon: "success",
           confirmButtonText: "OK",
           timer: 3000,
           showConfirmButton: false,
         }).then(() => {
-          Cookies.set("sb_token", data?.token, {
-            expires: new Date(data?.expires_at),
+          Cookies.set("userId", data.data.userId);
+          Cookies.set("sb_token", data.data.token, {
+            expires: new Date(data.data.expires_at),
             path: "/",
           });
           router.reload();
@@ -66,23 +69,26 @@ export default function Login() {
       } else {
         Swal.fire({
           title: "Error!",
-          text: "Registration failed!",
+          text: data.message || "Login failed!",
           icon: "error",
           confirmButtonText: "Try Again",
         });
       }
     } catch (error) {
+      console.error("Frontend error:", error);
       Swal.fire({
         title: "Error!",
-        text: "Registration failed!",
+        text: "Login failed due to network error!",
         icon: "error",
         confirmButtonText: "Try Again",
       });
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <div>
+    <div className="h-screen">
       <h1 className="text-center font-bold text-xl">Login</h1>
       <Form {...form}>
         <form
