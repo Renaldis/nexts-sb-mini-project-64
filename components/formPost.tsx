@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast, ToastContainer } from "react-toastify";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 
 // Skema validasi dengan Zod
 const formSchema = z.object({
@@ -19,26 +18,23 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function FormPost() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isValid, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    mode: "onChange",
   });
 
   const onSubmit = async (data: FormData) => {
-    setLoading(true);
-
     // Ambil user_id (contoh dari localStorage, ganti sesuai kebutuhan)
     const userId = Cookies.get("userId");
 
     if (!userId) {
       toast.error("User tidak ditemukan, silakan login ulang.");
-      setLoading(false);
       return;
     }
 
@@ -55,7 +51,6 @@ export default function FormPost() {
       });
 
       const responseData = await response.json();
-
       if (!response.ok) {
         throw new Error(responseData.message || "Gagal menambahkan post");
       }
@@ -71,11 +66,10 @@ export default function FormPost() {
         progress: undefined,
         theme: "colored",
       });
-      router.reload();
+      mutate("/api/posts?type=all");
+      // router.push(router.asPath);
     } catch (error: any) {
       toast.error(error.message || "Terjadi kesalahan, coba lagi.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -97,9 +91,12 @@ export default function FormPost() {
             )}
           </div>
 
-          {/* Tombol Submit */}
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Submitting..." : "Submit Post"}
+          <Button
+            type="submit"
+            disabled={isSubmitting || !isValid}
+            className="w-full cursor-pointer"
+          >
+            {isSubmitting ? "Submitting..." : "Submit Post"}
           </Button>
         </form>
       </CardContent>

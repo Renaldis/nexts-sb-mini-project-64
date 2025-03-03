@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { redirect } from "next/navigation";
+
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
@@ -49,8 +49,6 @@ export default function Register() {
   const { reset } = form;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
     setLoading(true);
     console.log(values);
 
@@ -203,7 +201,7 @@ export default function Register() {
           />
           <Button
             type="submit"
-            className="w-full bg-blue-600"
+            className="w-full bg-blue-600 cursor-pointer"
             disabled={loading}
           >
             {loading ? "Loading..." : "Register"}

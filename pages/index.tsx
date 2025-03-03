@@ -6,12 +6,14 @@ import FormPost from "@/components/formPost";
 import { useState } from "react";
 import Cookies from "js-cookie";
 import DropDownMenuEdit from "@/components/dropDownMenuEdit";
+import { Badge } from "@/components/ui/badge";
 
 interface Post {
   id: number;
   content: string;
   created_at: string;
   user_id: number;
+  updated_at: string;
 }
 
 interface User {
@@ -28,7 +30,7 @@ export default function Home() {
     error: postsError,
     isLoading: postsLoading,
   } = useSWR("/api/posts?type=all", fetcher);
-  // Ambil semua user
+
   const {
     data: usersData,
     error: usersError,
@@ -48,7 +50,6 @@ export default function Home() {
     <div className="flex flex-col gap-4">
       <FormPost />
       {posts.map((post) => {
-        // Cari user berdasarkan user_id dari post
         const user = users.find((u) => u.id === post.user_id);
 
         return (
@@ -68,9 +69,14 @@ export default function Home() {
                 <p className="text-xs text-gray-400">
                   {new Date(post.created_at).toLocaleDateString("id-ID")}
                 </p>
+                {post.created_at !== post.updated_at ? (
+                  <Badge variant="outline">Edited</Badge>
+                ) : (
+                  ""
+                )}
               </div>
               {user?.id === Number(myId) ? (
-                <DropDownMenuEdit/>
+                <DropDownMenuEdit postId={post.id} currentContent={post} />
               ) : null}
             </CardHeader>
             <CardContent>

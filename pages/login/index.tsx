@@ -140,7 +140,7 @@ export default function Login() {
           />
           <Button
             type="submit"
-            className="w-full bg-blue-600"
+            className="w-full bg-blue-600 cursor-pointer"
             disabled={loading}
           >
             {loading ? "Loading..." : "Login"}

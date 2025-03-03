@@ -13,11 +13,13 @@ import { Button } from "@/components/ui/button";
 import { Heart, MessageCircle, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { useProfile } from "@/context/profileContextProvider";
+import { Badge } from "@/components/ui/badge";
 
 interface Post {
   id: number;
   content: string;
   created_at: string;
+  updated_at: string;
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -35,7 +37,6 @@ export default function MyPost() {
     userId ? "/api/posts?type=me" : null,
     fetcher
   );
-  console.log(data);
 
   if (!userId) {
     toast.error("User tidak ditemukan, silakan login ulang.");
@@ -47,7 +48,6 @@ export default function MyPost() {
 
   const posts: Post[] = data?.data || [];
   console.log(posts);
-  
 
   return (
     <>
@@ -69,9 +69,14 @@ export default function MyPost() {
                 <p className="text-xs text-gray-400">
                   {new Date(post.created_at).toLocaleDateString("id-ID")}
                 </p>
+                {post.created_at !== post.updated_at ? (
+                  <Badge variant="outline">Edited</Badge>
+                ) : (
+                  ""
+                )}
               </div>
               <DropdownMenu>
-                <DropdownMenuTrigger>
+                <DropdownMenuTrigger className="cursor-pointer">
                   <Button variant="ghost" size="icon" asChild>
                     <MoreHorizontal size={18} />
                   </Button>
