@@ -12,7 +12,6 @@ export default async function handler(
 
   try {
     const allUsers = await db.select().from(users);
-    console.log("Users Data:", allUsers);
 
     return res.status(200).json({
       message: "Semua users",

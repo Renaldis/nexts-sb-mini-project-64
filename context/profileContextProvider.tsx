@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { useMemo } from "react";
 
 type UserProfile = {
   id: number;
@@ -15,6 +16,8 @@ type UserProfile = {
 type ProfileContextType = {
   profile: UserProfile;
   loading: boolean;
+  formatDate: (value: string) => string;
+  getUserColor: (value: string | undefined) => string;
 };
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -51,9 +54,36 @@ export const ProfileProvider = ({
       setLoading(false);
     }
   }, [isLogin]);
+  function formatDate(value: string) {
+    const date = new Date(value);
+    return date.toDateString();
+  }
+  function getUserColor(name: string | undefined) {
+    if (!name) return "#000000"; // Default warna jika nama tidak ada
+
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    let color = "#";
+    for (let i = 0; i < 3; i++) {
+      let value = (hash >> (i * 8)) & 0xff;
+      color += ("00" + value.toString(16)).slice(-2);
+    }
+
+    return color;
+  }
 
   return (
-    <ProfileContext.Provider value={{ profile, loading }}>
+    <ProfileContext.Provider
+      value={{
+        profile,
+        loading,
+        formatDate,
+        getUserColor,
+      }}
+    >
       {children}
     </ProfileContext.Provider>
   );

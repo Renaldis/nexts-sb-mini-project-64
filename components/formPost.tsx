@@ -9,7 +9,6 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/router";
 import useSWR, { mutate } from "swr";
 
-// Skema validasi dengan Zod
 const formSchema = z.object({
   content: z.string().min(3, { message: "Content minimal 3 karakter" }),
 });
@@ -30,7 +29,6 @@ export default function FormPost() {
   });
 
   const onSubmit = async (data: FormData) => {
-    // Ambil user_id (contoh dari localStorage, ganti sesuai kebutuhan)
     const userId = Cookies.get("userId");
 
     if (!userId) {
@@ -67,7 +65,6 @@ export default function FormPost() {
         theme: "colored",
       });
       mutate("/api/posts?type=all");
-      // router.push(router.asPath);
     } catch (error: any) {
       toast.error(error.message || "Terjadi kesalahan, coba lagi.");
     }

@@ -3,10 +3,12 @@ import { useProfile } from "@/context/profileContextProvider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import FormPost from "@/components/formPost";
 import MyPost from "./myPost";
+import useSWR from "swr";
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 const UserProfile = () => {
-  const { profile, loading } = useProfile();
-
+  const { profile, loading, getUserColor } = useProfile();
+  const { data } = useSWR("/api/me", fetcher);
   if (loading) return <p>Loading...</p>;
 
   const userProfile = [
@@ -36,7 +38,10 @@ const UserProfile = () => {
         <div className="flex justify-center">
           <CardHeader className="flex flex-col items-center">
             <Avatar>
-              <AvatarFallback className="bg-green-600 text-white font-bold">
+              <AvatarFallback
+                className="bg-green-600 text-white font-bold"
+                style={{ backgroundColor: getUserColor(data?.data.name) }}
+              >
                 {profile?.name.slice(0, 1)}
               </AvatarFallback>
             </Avatar>

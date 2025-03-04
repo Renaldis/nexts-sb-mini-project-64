@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import EditPostDialog from "@/pages/update";
-import { mutate } from "swr";
+import { useSWRConfig } from "swr";
 import { toast } from "react-toastify";
 
 interface Post {
@@ -26,7 +26,7 @@ export default function DropDownMenuEdit({
   currentContent: Post;
 }) {
   const [open, setOpen] = useState(false);
-
+  const { mutate } = useSWRConfig();
   const handleDelete = async () => {
     try {
       const response = await fetch(`/api/posts/delete`, {
@@ -38,6 +38,7 @@ export default function DropDownMenuEdit({
 
       if (!response.ok) throw new Error(data.message || "Gagal menghapus post");
       mutate("/api/posts?type=all");
+      mutate("/api/posts?type=me");
       toast.success("Post deleted successfully!");
     } catch (error: any) {
       toast.error(error.message || "Terjadi kesalahan saat menghapus post.");

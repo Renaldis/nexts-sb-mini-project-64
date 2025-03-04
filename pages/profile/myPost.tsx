@@ -1,33 +1,43 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import useSWR from "swr";
-import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle, MoreHorizontal } from "lucide-react";
+
+import { Heart, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { useProfile } from "@/context/profileContextProvider";
 import { Badge } from "@/components/ui/badge";
+import DropDownMenuEdit from "@/components/dropDownMenuEdit";
+import RepliesDialog from "@/components/replies";
 
 interface Post {
   id: number;
   content: string;
   created_at: string;
   updated_at: string;
+  user_id: number;
 }
-
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+interface Replies {
+  id: number;
+  content: string;
+  post_id: number;
+  user_id: number;
+}
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function MyPost() {
-  const { profile, loading } = useProfile();
+  const { profile, loading, formatDate, getUserColor } = useProfile();
   const [likes, setLikes] = useState(0);
-  const [replies, setReplies] = useState(0);
+
+  const [open, setOpen] = useState<boolean>(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | undefined>();
 
   if (loading) return <p>Loading...</p>;
 
@@ -38,6 +48,10 @@ export default function MyPost() {
     fetcher
   );
 
+  const { data: usersData } = useSWR("/api/users", fetcher);
+
+  const { data: repliesData } = useSWR(`/api/replies/post`, fetcher);
+
   if (!userId) {
     toast.error("User tidak ditemukan, silakan login ulang.");
     return <p>Silakan login untuk melihat post Anda.</p>;
@@ -47,15 +61,21 @@ export default function MyPost() {
   if (isLoading) return <p>Loading...</p>;
 
   const posts: Post[] = data?.data || [];
-  console.log(posts);
-
+  const users: User[] = usersData?.data || [];
   return (
-    <>
+    <div className="space-y-4">
       {posts.map((post) => {
+        const user = users.find((u) => u.id === post.user_id);
+        const postReplies = repliesData?.data.filter(
+          (r: Replies) => r.post_id === post.id
+        );
         return (
           <Card className="p-4 border w-full max-w-md" key={post.id}>
             <CardHeader className="flex flex-row items-center space-x-3">
-              <div className="w-10 h-10 bg-green-500 text-white flex items-center justify-center rounded-full text-lg font-bold">
+              <div
+                className="w-10 h-10 bg-green-500 text-white flex items-center justify-center rounded-full text-lg font-bold"
+                style={{ backgroundColor: getUserColor(user?.name) }}
+              >
                 {profile?.name?.charAt(0) || "U"}
               </div>
               <div className="flex-1">
@@ -67,7 +87,7 @@ export default function MyPost() {
                   {profile?.email || "N/A"}
                 </p>
                 <p className="text-xs text-gray-400">
-                  {new Date(post.created_at).toLocaleDateString("id-ID")}
+                  {formatDate(post.created_at)}
                 </p>
                 {post.created_at !== post.updated_at ? (
                   <Badge variant="outline">Edited</Badge>
@@ -75,19 +95,7 @@ export default function MyPost() {
                   ""
                 )}
               </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger className="cursor-pointer">
-                  <Button variant="ghost" size="icon" asChild>
-                    <MoreHorizontal size={18} />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-500">
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <DropDownMenuEdit postId={post.id} currentContent={post} />
             </CardHeader>
             <CardContent>
               <p className="mb-3">{post.content}</p>
@@ -99,15 +107,25 @@ export default function MyPost() {
                   <Heart size={16} />
                   <span>{likes} Like</span>
                 </button>
-                <button className="flex items-center space-x-1">
+                <button className="flex items-center space-x-1 cursor-pointer hover:text-slate-900">
                   <MessageCircle size={16} />
-                  <span>{replies} Replies</span>
+                  <span>{postReplies?.length}</span>
+                  <span
+                    onClick={() => {
+                      setOpen(true),
+                        setSelectedPost(post),
+                        setSelectedUser(user);
+                    }}
+                  >
+                    Replies
+                  </span>
                 </button>
               </div>
             </CardContent>
           </Card>
         );
       })}
-    </>
+      <RepliesDialog open={open} setOpen={setOpen} postId={selectedPost?.id} />
+    </div>
   );
 }

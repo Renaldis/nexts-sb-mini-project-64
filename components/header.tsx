@@ -13,14 +13,18 @@ import { useRouter } from "next/router";
 import { useProfile } from "@/context/profileContextProvider";
 import { useEffect, useState } from "react";
 import { cookies } from "next/headers";
+import useSWR from "swr";
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const Header = () => {
-  const { profile, loading } = useProfile();
+  const { profile, loading, getUserColor } = useProfile();
   const router = useRouter();
   async function handleLogout() {
     Cookies.remove("sb_token");
     Cookies.remove("gmail");
     Cookies.remove("userId");
+    Cookies.remove("color");
     router.reload();
   }
   const [isLogin, setIsLogin] = useState(false);
@@ -28,11 +32,13 @@ const Header = () => {
     if (Cookies.get("userId")) setIsLogin(true);
   }, []);
 
+  const { data } = useSWR("/api/me", fetcher);
+
   return (
     <header className="border-b w-full p-2">
       <div className="flex justify-between items-center">
-        <Link href={"/"} className="font-bold text-xl">
-          Sanber Daily
+        <Link href={"/"} className="font-bold text-xl ms-2">
+          Public Diary
         </Link>
         {isLogin ? (
           <div className="relative">
@@ -40,7 +46,10 @@ const Header = () => {
               <MenubarMenu>
                 <MenubarTrigger className="flex gap-1 cursor-pointer">
                   <Avatar>
-                    <AvatarFallback className="bg-green-600 text-white font-bold">
+                    <AvatarFallback
+                      className="bg-green-600 text-white font-bold"
+                      style={{ backgroundColor: getUserColor(data?.data.name) }}
+                    >
                       {profile?.name.slice(0, 1)}
                     </AvatarFallback>
                   </Avatar>
