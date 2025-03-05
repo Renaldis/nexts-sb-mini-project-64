@@ -65,6 +65,19 @@ export const notifications = pgTable("notifications", {
   user_id: integer("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
+  sender_id: integer("sender_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  type: varchar("type", { length: 50 }).notNull(),
+  post_id: integer("post_id").references(() => posts.id, {
+    onDelete: "cascade",
+  }),
+  reply_id: integer("reply_id").references(() => replies.id, {
+    onDelete: "cascade",
+  }),
+  like_id: integer("like_id").references(() => likes.id, {
+    onDelete: "cascade",
+  }),
   message: text("message").notNull(),
   is_read: boolean("is_read").default(false),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),

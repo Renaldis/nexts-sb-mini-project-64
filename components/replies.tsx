@@ -20,6 +20,15 @@ import Cookies from "js-cookie";
 import { Badge } from "./ui/badge";
 import Swal from "sweetalert2";
 
+interface Post {
+  id: number | undefined;
+  content: string;
+  created_at: string;
+  user_id: number;
+  updated_at: string;
+  id_likes_post_id: number;
+}
+
 interface Replies {
   id: number;
   content: string;
@@ -44,10 +53,12 @@ export default function RepliesDialog({
   postId,
   open,
   setOpen,
+  posts,
 }: {
   postId: number | undefined;
   open: boolean;
   setOpen: (open: boolean) => void;
+  posts: any;
 }) {
   const { formatDate } = useProfile();
   const { mutate } = useSWRConfig();
@@ -85,6 +96,25 @@ export default function RepliesDialog({
       mutate(`/api/replies/post`);
       toast.success("Replies successfully!");
       reset();
+
+      const userIdCookies = Cookies.get("userId");
+      if (!userIdCookies) toast.error("must login first");
+      const postOwner = posts.find((post: any) => post.id === postId)?.user_id;
+      if (postOwner && Number(postOwner) !== Number(userIdCookies)) {
+        await fetch("/api/notifications", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_id: postOwner,
+            sender_id: Number(userIdCookies),
+            type: "reply",
+            post_id: postId,
+            message: `User ${userIdCookies} Reply your post.`,
+          }),
+        });
+      }
     } catch (error: any) {
       toast.error(error.message || "Terjadi kesalahan saat memperbarui post.");
     }

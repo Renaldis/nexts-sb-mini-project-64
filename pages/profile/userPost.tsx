@@ -164,6 +164,7 @@ export default function UserPost() {
           );
         })}
         <RepliesDialog
+          posts={posts}
           open={open}
           setOpen={setOpen}
           postId={selectedPost?.id}

@@ -18,7 +18,6 @@ export default async function handler(
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Cek apakah user sudah menyukai post ini
     const existingLike = await db
       .select()
       .from(likes)

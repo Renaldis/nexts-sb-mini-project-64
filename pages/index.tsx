@@ -72,7 +72,10 @@ export default function Home() {
 
   const handleLike = async (post_id: number) => {
     const userIdCookies = Cookies.get("userId");
-    if (!userIdCookies) toast.error("must login first");
+    if (!userIdCookies) {
+      toast.error("must login first");
+      return;
+    }
     try {
       const response = await fetch("/api/likes/post", {
         method: "POST",
@@ -93,6 +96,27 @@ export default function Home() {
         autoClose: 1000,
         position: "top-center",
       });
+
+      const postOwner = posts.find((post) => post.id === post_id)?.user_id;
+      if (postOwner && Number(postOwner) !== Number(userIdCookies)) {
+        const responseNotif = await fetch("/api/notifications", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_id: postOwner,
+            sender_id: Number(userIdCookies),
+            type: "like",
+            post_id: post_id,
+            message: `User ${userIdCookies} liked your post.`,
+          }),
+        });
+        const notifResult = await responseNotif.json();
+        if (notifResult.message !== "Notifikasi sudah ada") {
+          console.log("Notifikasi berhasil dikirim");
+        }
+      }
     } catch (error: any) {
       toast.error(error.message || "Terjadi kesalahan saat memperbarui post.", {
         autoClose: 1000,
@@ -195,7 +219,12 @@ export default function Home() {
           </div>
         );
       })}
-      <RepliesDialog open={open} setOpen={setOpen} postId={selectedPost?.id} />
+      <RepliesDialog
+        posts={posts}
+        open={open}
+        setOpen={setOpen}
+        postId={selectedPost?.id}
+      />
     </div>
   );
 }
