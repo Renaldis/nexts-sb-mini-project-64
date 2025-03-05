@@ -14,22 +14,23 @@ import { useProfile } from "@/context/profileContextProvider";
 import { useEffect, useState } from "react";
 import { cookies } from "next/headers";
 import useSWR from "swr";
+import { toast } from "react-toastify";
+import { redirect } from "next/navigation";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const Header = () => {
-  const { profile, loading, getUserColor } = useProfile();
+  const { profile, getUserColor } = useProfile();
   const router = useRouter();
   async function handleLogout() {
     Cookies.remove("sb_token");
-    Cookies.remove("gmail");
     Cookies.remove("userId");
-    Cookies.remove("color");
     router.reload();
   }
   const [isLogin, setIsLogin] = useState(false);
+
   useEffect(() => {
-    if (Cookies.get("userId")) setIsLogin(true);
+    if (Cookies.get("sb_token")) setIsLogin(true);
   }, []);
 
   const { data } = useSWR("/api/me", fetcher);

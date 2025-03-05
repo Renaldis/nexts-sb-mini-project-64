@@ -7,6 +7,7 @@ export function middleware(request: {
 }) {
   const { pathname } = request.nextUrl;
   const isCookieExist = !!request.cookies.get("sb_token");
+  const isUserExist = !!request.cookies.get("userId");
   const isLoginPage = pathname.startsWith("/login");
 
   if (

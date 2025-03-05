@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 
 import { Heart, MessageCircle } from "lucide-react";
 import { useState } from "react";
@@ -29,11 +29,15 @@ interface Replies {
   post_id: number;
   user_id: number;
 }
+interface Likes {
+  id: number;
+  user_id: number;
+  post_id: number;
+}
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function MyPost() {
   const { profile, loading, formatDate, getUserColor } = useProfile();
-  const [likes, setLikes] = useState(0);
 
   const [open, setOpen] = useState<boolean>(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
@@ -47,10 +51,10 @@ export default function MyPost() {
     userId ? "/api/posts?type=me" : null,
     fetcher
   );
-
-  const { data: usersData } = useSWR("/api/users", fetcher);
-
   const { data: repliesData } = useSWR(`/api/replies/post`, fetcher);
+  const { data: likesData } = useSWR("/api/likes", fetcher);
+  const { data: usersData } = useSWR("/api/users", fetcher);
+  const myId = Cookies.get("userId");
 
   if (!userId) {
     toast.error("User tidak ditemukan, silakan login ulang.");
@@ -62,10 +66,46 @@ export default function MyPost() {
 
   const posts: Post[] = data?.data || [];
   const users: User[] = usersData?.data || [];
+  const likes: Likes[] = likesData?.data || [];
+
+  const handleLike = async (post_id: number) => {
+    const userIdCookies = Cookies.get("userId");
+    if (!userIdCookies) toast.error("must login first");
+    try {
+      const response = await fetch("/api/likes/post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: Number(userIdCookies),
+          post_id: Number(post_id),
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok)
+        throw new Error(result.message || "Gagal mengupdate post");
+      mutate("/api/likes");
+      toast.success(result.message, {
+        autoClose: 1000,
+        position: "top-center",
+      });
+    } catch (error: any) {
+      toast.error(error.message || "Terjadi kesalahan saat memperbarui post.", {
+        autoClose: 1000,
+        position: "top-center",
+      });
+    }
+  };
   return (
     <div className="space-y-4">
       {posts.map((post) => {
         const user = users.find((u) => u.id === post.user_id);
+        const likedPost = likes.filter((l: Likes) => l.post_id === post.id);
+        const LikedUser = likes.find(
+          (l: Likes) => l.user_id === Number(myId) && l.post_id === post.id
+        );
         const postReplies = repliesData?.data.filter(
           (r: Replies) => r.post_id === post.id
         );
@@ -101,11 +141,16 @@ export default function MyPost() {
               <p className="mb-3">{post.content}</p>
               <div className="flex items-center space-x-4 text-gray-500">
                 <button
-                  onClick={() => setLikes(likes + 1)}
-                  className="flex items-center space-x-1"
+                  className="flex items-center space-x-1 hover:font-bold cursor-pointer"
+                  onClick={() => handleLike(post?.id)}
                 >
-                  <Heart size={16} />
-                  <span>{likes} Like</span>
+                  {LikedUser ? (
+                    <Heart size={16} color="red" />
+                  ) : (
+                    <Heart size={16} />
+                  )}
+
+                  <span>{likedPost?.length} Like</span>
                 </button>
                 <button className="flex items-center space-x-1 cursor-pointer hover:text-slate-900">
                   <MessageCircle size={16} />

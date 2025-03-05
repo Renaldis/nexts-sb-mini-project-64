@@ -59,8 +59,9 @@ export default function Login() {
           timer: 3000,
           showConfirmButton: false,
         }).then(() => {
-          Cookies.set("userId", data.data.userId);
-          Cookies.set("color", data.data.colorImage);
+          Cookies.set("userId", data.data.userId, {
+            expires: new Date(data.data.expires_at),
+          });
           Cookies.set("sb_token", data.data.token, {
             expires: new Date(data.data.expires_at),
             path: "/",

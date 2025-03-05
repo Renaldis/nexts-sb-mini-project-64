@@ -56,14 +56,6 @@ export default async function handler(
         expiresIn: "1h",
       }
     );
-    function getRandomHexColor() {
-      const hexChars = "0123456789ABCDEF";
-      let color = "#";
-      for (let i = 0; i < 6; i++) {
-        color += hexChars[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    }
 
     return res.status(200).json({
       success: true,
@@ -72,7 +64,6 @@ export default async function handler(
         token,
         expires_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         userId: storedUser.id,
-        colorImage: getRandomHexColor(),
       },
     });
   } catch (error) {

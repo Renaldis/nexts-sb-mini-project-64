@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { useMemo } from "react";
 
 type UserProfile = {
   id: number;

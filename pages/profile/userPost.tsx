@@ -1,38 +1,36 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-import { Heart, MessageCircle } from "lucide-react";
-import useSWR, { mutate } from "swr";
-import FormPost from "@/components/formPost";
-import { useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 import Cookies from "js-cookie";
-import DropDownMenuEdit from "@/components/dropDownMenuEdit";
-import { Badge } from "@/components/ui/badge";
-import RepliesDialog from "@/components/replies";
+import useSWR, { mutate } from "swr";
+
+import { Heart, MessageCircle } from "lucide-react";
+import { useState } from "react";
 import { useProfile } from "@/context/profileContextProvider";
-import { toast } from "react-toastify";
-import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import DropDownMenuEdit from "@/components/dropDownMenuEdit";
+import RepliesDialog from "@/components/replies";
+import { useRouter } from "next/router";
 
 interface Post {
   id: number;
   content: string;
   created_at: string;
-  user_id: number;
   updated_at: string;
-  id_likes_post_id: number;
+  user_id: number;
 }
-
 interface User {
   id: number;
   name: string;
   email: string;
 }
-
 interface Replies {
   id: number;
   content: string;
   post_id: number;
   user_id: number;
 }
+
 interface Likes {
   id: number;
   user_id: number;
@@ -40,33 +38,30 @@ interface Likes {
 }
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export default function Home() {
-  const { formatDate, getUserColor } = useProfile();
-  const [open, setOpen] = useState<boolean>(false);
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-  const [selectedUser, setSelectedUser] = useState<User | undefined>();
+export default function UserPost() {
+  const router = useRouter();
+  const { id } = router.query;
+  const { data, error, isLoading } = useSWR(
+    `/api/posts/user?userId=${id}`,
+    fetcher
+  );
 
-  const {
-    data: postsData,
-    error: postsError,
-    isLoading: postsLoading,
-  } = useSWR("/api/posts?type=all", fetcher);
-
-  const {
-    data: usersData,
-    error: usersError,
-    isLoading: usersLoading,
-  } = useSWR("/api/users", fetcher);
-
+  const { data: usersData } = useSWR("/api/users", fetcher);
   const { data: repliesData } = useSWR(`/api/replies/post`, fetcher);
   const { data: likesData } = useSWR("/api/likes", fetcher);
+  const { loading, formatDate, getUserColor } = useProfile();
+
   const myId = Cookies.get("userId");
 
-  if (postsError || usersError)
-    return <p className="text-red-500">Gagal mengambil data.</p>;
-  if (postsLoading || usersLoading) return <p>Loading...</p>;
+  const [open, setOpen] = useState<boolean>(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
-  const posts: Post[] = postsData?.data || [];
+  if (loading) return <p>Loading...</p>;
+
+  if (error) return <p className="text-red-500">Gagal mengambil data post.</p>;
+  if (isLoading) return <p>Loading...</p>;
+
+  const posts: Post[] = data?.data || [];
   const users: User[] = usersData?.data || [];
   const likes: Likes[] = likesData?.data || [];
 
@@ -100,53 +95,32 @@ export default function Home() {
       });
     }
   };
-
   return (
-    <div className="flex flex-col gap-4 overflow-y-scroll max-h-[100vh]">
-      <FormPost />
-      {posts.map((post) => {
-        const user = users.find((u) => u.id === post.user_id);
-        const likedPost = likes.filter((l: Likes) => l.post_id === post.id);
-        const LikedUser = likes.find(
-          (l: Likes) => l.user_id === Number(myId) && l.post_id === post.id
-        );
-
-        const postReplies = repliesData?.data.filter(
-          (r: Replies) => r.post_id === post.id
-        );
-
-        return (
-          <div key={post.id}>
-            <Card className="p-4 border w-full max-w-md">
+    <>
+      <div className="space-y-4 h-screen">
+        {data?.data.map((post: Post) => {
+          const user = users.find((u) => u.id === post.user_id);
+          const likedPost = likes.filter((l: Likes) => l.post_id === post.id);
+          const LikedUser = likes.find(
+            (l: Likes) => l.user_id === Number(myId) && l.post_id === post.id
+          );
+          const postReplies = repliesData?.data.filter(
+            (r: Replies) => r.post_id === post.id
+          );
+          return (
+            <Card className="p-4 border w-full max-w-md" key={post.id}>
               <CardHeader className="flex flex-row items-center space-x-3">
                 <div
-                  className={`w-10 h-10 text-white flex items-center justify-center rounded-full text-lg font-bold`}
+                  className="w-10 h-10 bg-green-500 text-white flex items-center justify-center rounded-full text-lg font-bold"
                   style={{ backgroundColor: getUserColor(user?.name) }}
                 >
-                  {user?.name?.charAt(0)}
+                  {user?.name?.charAt(0) || "U"}
                 </div>
                 <div className="flex-1">
-                  {Number(user?.id) === Number(Cookies.get("userId")) ? (
-                    <Link href="/profile">
-                      <p className="font-semibold hover:bg-slate-50 rounded-full">
-                        {user?.name || "Unknown User"}
-                        <span className="text-gray-500 ml-2">
-                          {user?.id === Number(myId) ? "(You)" : null}
-                        </span>
-                      </p>
-                    </Link>
-                  ) : (
-                    <Link href={`/profile/${user?.id}`}>
-                      <p className="font-semibold hover:bg-slate-50 rounded-full">
-                        {user?.name || "Unknown User"}
-                        <span className="text-gray-500 ml-2">
-                          {user?.id === Number(myId) ? "(You)" : null}
-                        </span>
-                      </p>
-                    </Link>
-                  )}
-
-                  <p className="text-xs text-gray-400">{user?.email}</p>
+                  <p className="font-semibold">{user?.name || "User"} </p>
+                  <p className="text-sm text-gray-500">
+                    {user?.email || "N/A"}
+                  </p>
                   <p className="text-xs text-gray-400">
                     {formatDate(post.created_at)}
                   </p>
@@ -156,11 +130,8 @@ export default function Home() {
                     ""
                   )}
                 </div>
-                {user?.id === Number(myId) ? (
-                  <DropDownMenuEdit postId={post.id} currentContent={post} />
-                ) : null}
+                <DropDownMenuEdit postId={post.id} currentContent={post} />
               </CardHeader>
-
               <CardContent>
                 <p className="mb-3">{post.content}</p>
                 <div className="flex items-center space-x-4 text-gray-500">
@@ -181,9 +152,7 @@ export default function Home() {
                     <span>{postReplies?.length}</span>
                     <span
                       onClick={() => {
-                        setOpen(true),
-                          setSelectedPost(post),
-                          setSelectedUser(user);
+                        setOpen(true), setSelectedPost(post);
                       }}
                     >
                       Replies
@@ -192,10 +161,15 @@ export default function Home() {
                 </div>
               </CardContent>
             </Card>
-          </div>
-        );
-      })}
-      <RepliesDialog open={open} setOpen={setOpen} postId={selectedPost?.id} />
-    </div>
+          );
+        })}
+        <RepliesDialog
+          open={open}
+          setOpen={setOpen}
+          postId={selectedPost?.id}
+        />
+      </div>
+      <ToastContainer />
+    </>
   );
 }

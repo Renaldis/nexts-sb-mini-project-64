@@ -39,7 +39,10 @@ export default function DropDownMenuEdit({
       if (!response.ok) throw new Error(data.message || "Gagal menghapus post");
       mutate("/api/posts?type=all");
       mutate("/api/posts?type=me");
-      toast.success("Post deleted successfully!");
+      toast.success("Post deleted successfully!", {
+        autoClose: 1000,
+        position: "top-center",
+      });
     } catch (error: any) {
       toast.error(error.message || "Terjadi kesalahan saat menghapus post.");
     }
