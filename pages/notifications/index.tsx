@@ -9,18 +9,20 @@ import useSWR, { mutate } from "swr";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { CheckCircle, Bell } from "lucide-react";
+import { useProfile } from "@/context/profileContextProvider";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Notifications() {
+  const { convertTime, getUserColor } = useProfile();
   const user_id = Cookies.get("userId");
-  const { data, error } = useSWR(
+  const { data: notificationData, error } = useSWR(
     user_id ? `/api/notifications?user_id=${user_id}` : null,
     fetcher
   );
 
   if (error) return <p className="text-red-500">Gagal mengambil notifikasi.</p>;
-  const notifications = data || [];
 
   async function markAsRead(id: number) {
     await fetch(`/api/notifications`, {
@@ -31,8 +33,8 @@ export default function Notifications() {
     mutate(`/api/notifications?user_id=${user_id}`);
     toast.success("Notifikasi ditandai sebagai dibaca");
   }
+  const notifications = notificationData || [];
 
-  console.log(notifications);
   return (
     <div className="min-h-[800px]">
       <h3 className="text-lg font-semibold flex items-center mb-3">
@@ -43,40 +45,55 @@ export default function Notifications() {
           {notifications.length === 0 ? (
             <p className="text-gray-500 text-center">Tidak ada notifikasi</p>
           ) : (
-            notifications.map((notif: any) => (
-              <li
-                key={notif.id}
-                className={`flex justify-between items-center p-3 rounded-lg shadow-sm transition-all duration-300 bg-white  ${
-                  notif.is_read ? "bg-gray-100" : "bg-blue-100"
-                }`}
-              >
-                <p
-                  className={`${
-                    notif.is_read ? "text-gray-500" : "text-black"
+            notifications.map((notif: any) => {
+              return (
+                <li
+                  key={notif.id}
+                  className={`flex justify-between items-center p-3 rounded-lg shadow-sm transition-all duration-300 bg-white  ${
+                    notif.is_read ? "bg-gray-100" : "bg-blue-100"
                   }`}
                 >
-                  {notif.message}
-                </p>
-                {!notif.is_read && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger
-                        onClick={() => markAsRead(notif.id)}
-                        className="cursor-pointer"
-                      >
-                        <CheckCircle
-                          size={20}
-                          className="text-green-500 hover:text-green-700"
-                        />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Mark as read</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
-              </li>
-            ))
+                  <Avatar>
+                    <AvatarFallback
+                      className="bg-green-600 text-white font-bold"
+                      style={{
+                        backgroundColor: getUserColor(notif.sender_name),
+                      }}
+                    >
+                      {notif.sender_name.slice(0, 1)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <p
+                    className={`${
+                      notif.is_read ? "text-gray-500" : "text-black"
+                    }`}
+                  >
+                    {notif.message}
+                  </p>
+                  <span className="text-sm text-slate-500">
+                    {convertTime(notif.created_at)}
+                  </span>
+                  {!notif.is_read && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger
+                          onClick={() => markAsRead(notif.id)}
+                          className="cursor-pointer"
+                        >
+                          <CheckCircle
+                            size={20}
+                            className="text-green-500 hover:text-green-700"
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Mark as read</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+                </li>
+              );
+            })
           )}
         </ul>
       </div>

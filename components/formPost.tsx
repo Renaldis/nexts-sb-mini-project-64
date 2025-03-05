@@ -72,9 +72,6 @@ export default function FormPost() {
 
   return (
     <Card className="sticky top-0">
-      <CardHeader>
-        <h2 className="text-lg font-bold">Create New Post</h2>
-      </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
@@ -82,6 +79,7 @@ export default function FormPost() {
               id="content"
               {...register("content")}
               className="w-full"
+              placeholder="create your post ..."
             />
             {errors.content && (
               <p className="text-red-500 text-sm">{errors.content.message}</p>

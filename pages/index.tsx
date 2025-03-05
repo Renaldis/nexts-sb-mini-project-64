@@ -41,7 +41,7 @@ interface Likes {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Home() {
-  const { formatDate, getUserColor } = useProfile();
+  const { formatDate, getUserColor, profile } = useProfile();
   const [open, setOpen] = useState<boolean>(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | undefined>();
@@ -70,6 +70,7 @@ export default function Home() {
   const users: User[] = usersData?.data || [];
   const likes: Likes[] = likesData?.data || [];
 
+  console.log();
   const handleLike = async (post_id: number) => {
     const userIdCookies = Cookies.get("userId");
     if (!userIdCookies) {
@@ -96,7 +97,7 @@ export default function Home() {
         autoClose: 1000,
         position: "top-center",
       });
-
+      const date = new Date();
       const postOwner = posts.find((post) => post.id === post_id)?.user_id;
       if (postOwner && Number(postOwner) !== Number(userIdCookies)) {
         const responseNotif = await fetch("/api/notifications", {
@@ -109,7 +110,7 @@ export default function Home() {
             sender_id: Number(userIdCookies),
             type: "like",
             post_id: post_id,
-            message: `User ${userIdCookies} liked your post.`,
+            message: `${profile?.name} liked your post.`,
           }),
         });
         const notifResult = await responseNotif.json();

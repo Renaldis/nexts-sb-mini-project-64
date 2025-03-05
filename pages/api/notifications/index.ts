@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { db } from "@/lib/db";
-import { notifications } from "@/lib/db/schema";
+import { notifications, users } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 
 type Notification = {
@@ -25,10 +25,24 @@ export default async function handler(
       if (!user_id)
         return res.status(400).json({ error: "User ID diperlukan" });
 
+      // Query dengan JOIN untuk mendapatkan sender_name dari tabel users
       const data: Notification[] = await db
-        .select()
+        .select({
+          id: notifications.id,
+          user_id: notifications.user_id,
+          sender_id: notifications.sender_id,
+          sender_name: users.name,
+          type: notifications.type,
+          post_id: notifications.post_id,
+          reply_id: notifications.reply_id,
+          like_id: notifications.like_id,
+          message: notifications.message,
+          is_read: notifications.is_read,
+          created_at: notifications.created_at,
+        })
         .from(notifications)
-        .where(eq(notifications.user_id, parseInt(user_id as string)));
+        .where(eq(notifications.user_id, parseInt(user_id as string)))
+        .leftJoin(users, eq(notifications.sender_id, users.id));
 
       return res.status(200).json(data);
     }
@@ -82,11 +96,9 @@ export default async function handler(
         await db.delete(notifications).where(eq(notifications.id, id));
       }
 
-      return res
-        .status(200)
-        .json({
-          message: "Notifikasi diperbarui dan dihapus jika sudah dibaca",
-        });
+      return res.status(200).json({
+        message: "Notifikasi diperbarui dan dihapus jika sudah dibaca",
+      });
     }
 
     return res.status(405).json({ error: "Method tidak diizinkan" });

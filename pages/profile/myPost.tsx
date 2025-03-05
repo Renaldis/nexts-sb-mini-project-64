@@ -170,7 +170,12 @@ export default function MyPost() {
           </Card>
         );
       })}
-      <RepliesDialog open={open} setOpen={setOpen} postId={selectedPost?.id} />
+      <RepliesDialog
+        posts={posts}
+        open={open}
+        setOpen={setOpen}
+        postId={selectedPost?.id}
+      />
     </div>
   );
 }

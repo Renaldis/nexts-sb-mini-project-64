@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { formatDistanceToNow, format } from "date-fns";
 
 type UserProfile = {
   id: number;
@@ -17,6 +18,7 @@ type ProfileContextType = {
   loading: boolean;
   formatDate: (value: string) => string;
   getUserColor: (value: string | undefined) => string;
+  convertTime: (value: string) => string;
 };
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -74,6 +76,18 @@ export const ProfileProvider = ({
     return color;
   }
 
+  const convertTime = (isoDate: string) => {
+    const date = new Date(isoDate);
+    const now = new Date();
+    const diffInDays = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (diffInDays >= 30) {
+      return format(date, "MMMM yyyy"); // "March 2025"
+    }
+    return formatDistanceToNow(date, { addSuffix: true }); // "5 minutes ago", "2 days ago", etc.
+  };
   return (
     <ProfileContext.Provider
       value={{
@@ -81,6 +95,7 @@ export const ProfileProvider = ({
         loading,
         formatDate,
         getUserColor,
+        convertTime,
       }}
     >
       {children}

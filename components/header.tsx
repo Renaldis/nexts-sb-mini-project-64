@@ -34,6 +34,11 @@ const Header = () => {
   }, []);
 
   const { data } = useSWR("/api/me", fetcher);
+  const user_id = Cookies.get("userId");
+  const { data: dataNotification, error: notifError } = useSWR(
+    user_id ? `/api/notifications?user_id=${user_id}` : null,
+    fetcher
+  );
 
   return (
     <header className="border-b w-full p-2">
@@ -66,6 +71,13 @@ const Header = () => {
                   <Link href={"/notifications"}>
                     <MenubarItem className="cursor-pointer">
                       <Bell />
+                      {dataNotification?.length > 0 ? (
+                        <span className="font-semibold">
+                          {dataNotification.length}
+                        </span>
+                      ) : (
+                        ""
+                      )}
                       Notifications
                     </MenubarItem>
                   </Link>

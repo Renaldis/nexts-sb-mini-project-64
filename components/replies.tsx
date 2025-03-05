@@ -139,7 +139,7 @@ export default function RepliesDialog({
   const userIdLogin = Cookies.get("userId");
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="w-[400px] h-[600px]  overflow-y-auto">
+      <DialogContent className="w-[400px] h-screen  overflow-y-auto">
         <div className="overflow-y-auto">
           <div className="sticky top-0 z-50">
             <DialogHeader>

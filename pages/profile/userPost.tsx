@@ -88,6 +88,27 @@ export default function UserPost() {
         autoClose: 1000,
         position: "top-center",
       });
+
+      const postOwner = posts.find((post) => post.id === post_id)?.user_id;
+      if (postOwner && Number(postOwner) !== Number(userIdCookies)) {
+        const responseNotif = await fetch("/api/notifications", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_id: postOwner,
+            sender_id: Number(userIdCookies),
+            type: "like",
+            post_id: post_id,
+            message: `User ${userIdCookies} liked your post.`,
+          }),
+        });
+        const notifResult = await responseNotif.json();
+        if (notifResult.message !== "Notifikasi sudah ada") {
+          console.log("Notifikasi berhasil dikirim");
+        }
+      }
     } catch (error: any) {
       toast.error(error.message || "Terjadi kesalahan saat memperbarui post.", {
         autoClose: 1000,
