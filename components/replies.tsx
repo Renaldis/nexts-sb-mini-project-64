@@ -12,36 +12,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useSWR, { useSWRConfig } from "swr";
-
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { useProfile } from "@/context/profileContextProvider";
 import { Trash2 } from "lucide-react";
 import Cookies from "js-cookie";
 import { Badge } from "./ui/badge";
-import Swal from "sweetalert2";
+import { Post, Replies, Likes, User } from "@/types";
 
-interface Post {
-  id: number | undefined;
-  content: string;
-  created_at: string;
-  user_id: number;
-  updated_at: string;
-  id_likes_post_id: number;
-}
-
-interface Replies {
-  id: number;
-  content: string;
-  created_at: string;
-  updated_at: string;
-  user_id: number;
-}
-type User = {
-  id: number;
-  name: string;
-};
-
-// Skema validasi dengan Zod
 const formSchema = z.object({
   content: z.string().min(3, { message: "Replies minimal 3 karakter" }),
 });
@@ -71,12 +48,10 @@ export default function RepliesDialog({
     resolver: zodResolver(formSchema),
   });
 
-  const {
-    data: repliesData,
-    error: postsError,
-    isLoading: postsLoading,
-  } = useSWR(postId ? `/api/replies/post?post_id=${postId}` : null, fetcher);
-
+  const { data: repliesData } = useSWR(
+    postId ? `/api/replies/post?post_id=${postId}` : null,
+    fetcher
+  );
   const { data: usersData } = useSWR("/api/users", fetcher);
 
   const onSubmit = async (data: FormData) => {

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 import { Heart, MessageCircle } from "lucide-react";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import FormPost from "@/components/formPost";
 import { useState } from "react";
 import Cookies from "js-cookie";
@@ -9,55 +9,27 @@ import DropDownMenuEdit from "@/components/dropDownMenuEdit";
 import { Badge } from "@/components/ui/badge";
 import RepliesDialog from "@/components/replies";
 import { useProfile } from "@/context/profileContextProvider";
-import { toast } from "react-toastify";
 import Link from "next/link";
+import { Post, Replies, Likes, User } from "@/types";
+import { handleLike } from "@/utils/likeService";
 
-interface Post {
-  id: number;
-  content: string;
-  created_at: string;
-  user_id: number;
-  updated_at: string;
-  id_likes_post_id: number;
-}
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
-
-interface Replies {
-  id: number;
-  content: string;
-  post_id: number;
-  user_id: number;
-}
-interface Likes {
-  id: number;
-  user_id: number;
-  post_id: number;
-}
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Home() {
   const { formatDate, getUserColor, profile } = useProfile();
   const [open, setOpen] = useState<boolean>(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-  const [selectedUser, setSelectedUser] = useState<User | undefined>();
 
   const {
     data: postsData,
     error: postsError,
     isLoading: postsLoading,
   } = useSWR("/api/posts?type=all", fetcher);
-
   const {
     data: usersData,
     error: usersError,
     isLoading: usersLoading,
   } = useSWR("/api/users", fetcher);
-
   const { data: repliesData } = useSWR(`/api/replies/post`, fetcher);
   const { data: likesData } = useSWR("/api/likes", fetcher);
   const myId = Cookies.get("userId");
@@ -69,62 +41,6 @@ export default function Home() {
   const posts: Post[] = postsData?.data || [];
   const users: User[] = usersData?.data || [];
   const likes: Likes[] = likesData?.data || [];
-
-  console.log();
-  const handleLike = async (post_id: number) => {
-    const userIdCookies = Cookies.get("userId");
-    if (!userIdCookies) {
-      toast.error("must login first");
-      return;
-    }
-    try {
-      const response = await fetch("/api/likes/post", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: Number(userIdCookies),
-          post_id: Number(post_id),
-        }),
-      });
-
-      const result = await response.json();
-      if (!response.ok)
-        throw new Error(result.message || "Gagal mengupdate post");
-      mutate("/api/likes");
-      toast.success(result.message, {
-        autoClose: 1000,
-        position: "top-center",
-      });
-      const date = new Date();
-      const postOwner = posts.find((post) => post.id === post_id)?.user_id;
-      if (postOwner && Number(postOwner) !== Number(userIdCookies)) {
-        const responseNotif = await fetch("/api/notifications", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_id: postOwner,
-            sender_id: Number(userIdCookies),
-            type: "like",
-            post_id: post_id,
-            message: `${profile?.name} liked your post.`,
-          }),
-        });
-        const notifResult = await responseNotif.json();
-        if (notifResult.message !== "Notifikasi sudah ada") {
-          console.log("Notifikasi berhasil dikirim");
-        }
-      }
-    } catch (error: any) {
-      toast.error(error.message || "Terjadi kesalahan saat memperbarui post.", {
-        autoClose: 1000,
-        position: "top-center",
-      });
-    }
-  };
 
   return (
     <div className="flex flex-col gap-4 overflow-y-scroll max-h-[100vh]">
@@ -170,7 +86,6 @@ export default function Home() {
                       </p>
                     </Link>
                   )}
-
                   <p className="text-xs text-gray-400">{user?.email}</p>
                   <p className="text-xs text-gray-400">
                     {formatDate(post.created_at)}
@@ -191,7 +106,7 @@ export default function Home() {
                 <div className="flex items-center space-x-4 text-gray-500">
                   <button
                     className="flex items-center space-x-1 hover:font-bold cursor-pointer"
-                    onClick={() => handleLike(post?.id)}
+                    onClick={() => handleLike(post.id, posts, profile)}
                   >
                     {LikedUser ? (
                       <Heart size={16} color="red" />
@@ -206,9 +121,7 @@ export default function Home() {
                     <span>{postReplies?.length}</span>
                     <span
                       onClick={() => {
-                        setOpen(true),
-                          setSelectedPost(post),
-                          setSelectedUser(user);
+                        setOpen(true), setSelectedPost(post);
                       }}
                     >
                       Replies
