@@ -6,7 +6,6 @@ import { Heart, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { useProfile } from "@/context/profileContextProvider";
 import { Badge } from "@/components/ui/badge";
-import DropDownMenuEdit from "@/components/dropDownMenuEdit";
 import RepliesDialog from "@/components/replies";
 import { useRouter } from "next/router";
 import { Post, User, Likes, Replies } from "@/types";
