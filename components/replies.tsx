@@ -164,7 +164,7 @@ export default function RepliesDialog({
               </Button>
             </form>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 mb-10">
             {repliesData?.replies.length > 0 ? (
               repliesData.replies.map((replies: Replies) => {
                 const user = users.find((u) => u.id === replies.user_id);
