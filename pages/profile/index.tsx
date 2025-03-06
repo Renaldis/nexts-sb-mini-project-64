@@ -1,3 +1,4 @@
+import Head from "next/head";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useProfile } from "@/context/profileContextProvider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -33,35 +34,40 @@ const UserProfile = () => {
   ];
 
   return (
-    <div className="flex flex-col gap-4 overflow-y-scroll max-h-[100vh]">
-      <Card>
-        <div className="flex justify-center">
-          <CardHeader className="flex flex-col items-center">
-            <Avatar>
-              <AvatarFallback
-                className="bg-green-600 text-white font-bold"
-                style={{ backgroundColor: getUserColor(data?.data.name) }}
-              >
-                {profile?.name.slice(0, 1)}
-              </AvatarFallback>
-            </Avatar>
-            <h2 className="text-lg font-semibold mt-2">{profile?.name}</h2>
-          </CardHeader>
-        </div>
-        <CardContent>
-          <div className="mt-4 grid grid-cols-2 gap-4 text-xs">
-            {userProfile.map((user, idx) => (
-              <div key={idx}>
-                <p className="font-semibold">{user.label}</p>
-                <p className="text-gray-600">{user.profile}</p>
-              </div>
-            ))}
+    <>
+      <Head>
+        <title>Nexts Mini Project - MyProfile</title>
+      </Head>
+      <div className="flex flex-col gap-4 overflow-y-scroll max-h-[100vh]">
+        <Card>
+          <div className="flex justify-center">
+            <CardHeader className="flex flex-col items-center">
+              <Avatar>
+                <AvatarFallback
+                  className="bg-green-600 text-white font-bold"
+                  style={{ backgroundColor: getUserColor(data?.data.name) }}
+                >
+                  {profile?.name.slice(0, 1)}
+                </AvatarFallback>
+              </Avatar>
+              <h2 className="text-lg font-semibold mt-2">{profile?.name}</h2>
+            </CardHeader>
           </div>
-        </CardContent>
-      </Card>
-      <FormPost />
-      <MyPost />
-    </div>
+          <CardContent>
+            <div className="mt-4 grid grid-cols-2 gap-4 text-xs">
+              {userProfile.map((user, idx) => (
+                <div key={idx}>
+                  <p className="font-semibold">{user.label}</p>
+                  <p className="text-gray-600">{user.profile}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <FormPost />
+        <MyPost />
+      </div>
+    </>
   );
 };
 

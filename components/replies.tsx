@@ -135,7 +135,7 @@ export default function RepliesDialog({
   const userIdLogin = Cookies.get("userId");
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="w-[400px] h-screen  overflow-y-auto">
+      <DialogContent className="w-[400px] h-screen  overflow-y-auto dark:text-slate-100">
         <div className="overflow-y-auto">
           <div className="sticky top-0 z-50">
             <DialogHeader>
@@ -145,11 +145,11 @@ export default function RepliesDialog({
 
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="space-y-4 bg-white"
+              className="space-y-4 bg-white dark:bg-transparent"
             >
               <Textarea
                 {...register("content")}
-                className="w-full bg-blue-50"
+                className="w-full bg-blue-50 dark:text-slate-800"
                 placeholder="your replies ..."
               />
               {errors.content && (
@@ -171,13 +171,13 @@ export default function RepliesDialog({
                 return (
                   <div
                     key={replies.id}
-                    className="border shadow-md rounded-lg p-4"
+                    className="border shadow-md rounded-lg p-4 dark:bg-slate-800"
                   >
                     <div className="flex items-center justify-between">
                       <div>
                         <div
-                          className="inline-flex items-center gap-2 bg-sky-100 px-3
-                   py-1 rounded-full text-sm"
+                          className="inline-flex items-center gap-2 dark:bg-slate-900 px-3
+                   py-1 rounded-full text-sm "
                         >
                           <Avatar>
                             <AvatarFallback className="bg-green-600 text-white font-bold text-sm">
@@ -200,10 +200,10 @@ export default function RepliesDialog({
                       )}
                     </div>
                     <div className="flex flex-col space-y-3">
-                      <span className="text-sm text-slate-600">
+                      <span className="text-sm text-slate-600 dark:text-slate-300">
                         {formatDate(replies.created_at)}
                       </span>
-                      <span className="text-sm text-black">
+                      <span className="text-sm text-black dark:text-slate-300">
                         {replies.content}
                       </span>
                     </div>

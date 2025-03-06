@@ -69,7 +69,7 @@ export default function Home() {
                 <div className="flex-1">
                   {Number(user?.id) === Number(Cookies.get("userId")) ? (
                     <Link href="/profile">
-                      <p className="font-semibold hover:bg-slate-50 rounded-full">
+                      <p className="font-semibold hover:bg-slate-50 rounded-full dark:hover:bg-transparent ">
                         {user?.name || "Unknown User"}
                         <span className="text-gray-500 ml-2">
                           {user?.id === Number(myId) ? "(You)" : null}
@@ -78,7 +78,7 @@ export default function Home() {
                     </Link>
                   ) : (
                     <Link href={`/profile/${user?.id}`}>
-                      <p className="font-semibold hover:bg-slate-50 rounded-full">
+                      <p className="font-semibold hover:bg-slate-50 dark:hover:bg-transparent rounded-full">
                         {user?.name || "Unknown User"}
                         <span className="text-gray-500 ml-2">
                           {user?.id === Number(myId) ? "(You)" : null}
@@ -105,7 +105,7 @@ export default function Home() {
                 <p className="mb-3">{post.content}</p>
                 <div className="flex items-center space-x-4 text-gray-500">
                   <button
-                    className="flex items-center space-x-1 hover:font-bold cursor-pointer"
+                    className="flex items-center space-x-1 hover:font-bold cursor-pointer hover:text-slate-900 dark:hover:text-slate-100"
                     onClick={() => handleLike(post.id, posts, profile)}
                   >
                     {LikedUser ? (
@@ -116,7 +116,7 @@ export default function Home() {
 
                     <span>{likedPost?.length} Like</span>
                   </button>
-                  <button className="flex items-center space-x-1 cursor-pointer hover:text-slate-900">
+                  <button className="flex items-center space-x-1 cursor-pointer hover:text-slate-900 dark:hover:text-slate-100">
                     <MessageCircle size={16} />
                     <span>{postReplies?.length}</span>
                     <span

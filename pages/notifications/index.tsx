@@ -1,3 +1,4 @@
+import Head from "next/head";
 import useSWR, { mutate } from "swr";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
@@ -27,11 +28,16 @@ export default function Notifications() {
   const notifications = notificationData || [];
 
   return (
-    <div className="min-h-[800px]">
-      <h3 className="text-lg font-semibold flex items-center mb-3">
-        <Bell className="mr-2" /> Notifikasi
-      </h3>
-      <Notification notifications={notifications} markAsRead={markAsRead} />
-    </div>
+    <>
+      <Head>
+        <title>Nexts Mini Project - Notifications</title>
+      </Head>
+      <div className="min-h-screen">
+        <h3 className="text-lg font-semibold flex items-center mb-3">
+          <Bell className="mr-2" /> Notifikasi
+        </h3>
+        <Notification notifications={notifications} markAsRead={markAsRead} />
+      </div>
+    </>
   );
 }

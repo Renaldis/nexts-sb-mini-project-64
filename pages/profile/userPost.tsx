@@ -84,7 +84,7 @@ export default function UserPost() {
                 <p className="mb-3">{post.content}</p>
                 <div className="flex items-center space-x-4 text-gray-500">
                   <button
-                    className="flex items-center space-x-1 hover:font-bold cursor-pointer"
+                    className="flex items-center space-x-1 hover:font-bold cursor-pointer hover:text-slate-900 dark:hover:text-slate-100"
                     onClick={() => handleLike(post.id, posts, profile)}
                   >
                     {LikedUser ? (
@@ -95,7 +95,7 @@ export default function UserPost() {
 
                     <span>{likedPost?.length} Like</span>
                   </button>
-                  <button className="flex items-center space-x-1 cursor-pointer hover:text-slate-900">
+                  <button className="flex items-center space-x-1 cursor-pointer hover:text-slate-900 dark:hover:text-slate-100">
                     <MessageCircle size={16} />
                     <span>{postReplies?.length}</span>
                     <span
