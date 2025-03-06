@@ -135,7 +135,7 @@ export default function RepliesDialog({
   const userIdLogin = Cookies.get("userId");
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="w-[400px] h-screen  overflow-y-auto dark:text-slate-100">
+      <DialogContent className="w-[400px] h-screen overflow-y-auto bg-white text-slate-800 dark:text-slate-100 dark:bg-slate-800">
         <div className="overflow-y-auto">
           <div className="sticky top-0 z-50">
             <DialogHeader>
@@ -171,14 +171,11 @@ export default function RepliesDialog({
                 return (
                   <div
                     key={replies.id}
-                    className="border shadow-md rounded-lg p-4 dark:bg-slate-800"
+                    className="border shadow-md rounded-lg p-4 dark:bg-slate-900"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <div
-                          className="inline-flex items-center gap-2 dark:bg-slate-900 px-3
-                   py-1 rounded-full text-sm "
-                        >
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm">
                           <Avatar>
                             <AvatarFallback className="bg-green-600 text-white font-bold text-sm">
                               {user?.name.slice(0, 1)}
@@ -188,7 +185,12 @@ export default function RepliesDialog({
                         </div>
 
                         {Number(userIdLogin) === user?.id && (
-                          <Badge variant="outline">(You)</Badge>
+                          <Badge
+                            variant="outline"
+                            className="text-slate-600 dark:text-slate-100"
+                          >
+                            (You)
+                          </Badge>
                         )}
                       </div>
                       {Number(userIdLogin) === user?.id && (

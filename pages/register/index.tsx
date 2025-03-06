@@ -94,7 +94,7 @@ export default function Register() {
     }
   }
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen text-black dark:text-white">
       <h1 className="text-center font-bold text-xl">Register</h1>
 
       <Form {...form}>

@@ -92,12 +92,14 @@ export default function Login() {
 
   return (
     <div className="h-screen">
-      <h1 className="text-center font-bold text-xl">Login</h1>
+      <h1 className="text-center font-bold text-xl text-black dark:text-white">
+        Login
+      </h1>
 
       <Form {...form}>
         <form
           onSubmit={form?.handleSubmit(onSubmit)}
-          className="space-y-3 w-[70%] mx-auto"
+          className="space-y-3 w-[70%] mx-auto text-black dark:text-white"
         >
           <FormField
             control={form.control}

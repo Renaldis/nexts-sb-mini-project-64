@@ -73,7 +73,12 @@ export default function UserPost() {
                     {formatDate(post.created_at)}
                   </p>
                   {post.created_at !== post.updated_at ? (
-                    <Badge variant="outline">Edited</Badge>
+                    <Badge
+                      variant="outline"
+                      className="text-slate-600 dark:text-slate-100"
+                    >
+                      Edited
+                    </Badge>
                   ) : (
                     ""
                   )}
