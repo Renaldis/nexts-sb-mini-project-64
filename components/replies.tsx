@@ -135,9 +135,9 @@ export default function RepliesDialog({
   const userIdLogin = Cookies.get("userId");
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="w-[400px] h-screen overflow-y-auto bg-white text-slate-800 dark:text-slate-100 dark:bg-slate-800">
+      <DialogContent className="w-[400px] h-screen overflow-y-auto bg-white text-slate-800 dark:text-slate-100 dark:bg-slate-800 my-5">
         <div className="overflow-y-auto">
-          <div className="sticky top-0 z-50">
+          <div className="sticky top-0 z-50 bg-white dark:bg-slate-800">
             <DialogHeader>
               <DialogTitle>Replies Post</DialogTitle>
               <DialogDescription>Create your own replies.</DialogDescription>
