@@ -32,7 +32,7 @@ export default function Notifications() {
       <Head>
         <title>Nexts Mini Project - Notifications</title>
       </Head>
-      <div className="min-h-screen">
+      <div className="min-h-screen text-slate-800 dark:text-slate-100">
         <h3 className="text-lg font-semibold flex items-center mb-3">
           <Bell className="mr-2" /> Notifikasi
         </h3>
