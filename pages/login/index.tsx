@@ -41,7 +41,6 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   async function onSubmit(values: z.infer<typeof formSchemaLogin>) {
     setLoading(true);
-    console.log("Submitting values:", values);
 
     try {
       const response = await fetch("/api/login", {
@@ -51,7 +50,6 @@ export default function Login() {
       });
 
       const data = await response.json();
-      console.log("Response from backend:", data);
 
       if (response.ok) {
         Swal.fire({
@@ -91,8 +89,6 @@ export default function Login() {
       setLoading(false);
     }
   }
-
-  console.log("Form instance:", form);
 
   return (
     <div className="h-screen">

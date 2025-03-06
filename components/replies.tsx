@@ -70,11 +70,18 @@ export default function RepliesDialog({
 
       mutate(`/api/replies/post?post_id=${postId}`);
       mutate(`/api/replies/post`);
-      toast.success("Replies successfully!");
+      toast.success("Replies successfully!", {
+        autoClose: 1000,
+        position: "top-center",
+      });
       reset();
 
       const userIdCookies = Cookies.get("userId");
-      if (!userIdCookies) toast.error("must login first");
+      if (!userIdCookies)
+        toast.error("must login first", {
+          autoClose: 1000,
+          position: "top-center",
+        });
       const postOwner = posts.find((post: Post) => post.id === postId)?.user_id;
       if (postOwner && Number(postOwner) !== Number(userIdCookies)) {
         await fetch("/api/notifications", {
@@ -93,9 +100,15 @@ export default function RepliesDialog({
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message);
+        toast.error(error.message, {
+          autoClose: 1000,
+          position: "top-center",
+        });
       } else {
-        toast.error("Terjadi kesalahan saat memperbarui post.");
+        toast.error("Terjadi kesalahan saat memperbarui post.", {
+          autoClose: 1000,
+          position: "top-center",
+        });
       }
     }
   };
@@ -112,7 +125,10 @@ export default function RepliesDialog({
     mutate(`/api/replies/post?post_id=${postId}`);
     mutate(`/api/replies/post`);
     if (response.ok) {
-      toast.success("delete succesfully");
+      toast.success("delete succesfully", {
+        autoClose: 1000,
+        position: "top-center",
+      });
     }
   };
 

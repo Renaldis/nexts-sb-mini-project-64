@@ -21,10 +21,10 @@ export default function Notification({
     <>
       <div className="max-w-lg mx-auto ">
         <ul className="space-y-3">
-          {notifications.length === 0 ? (
+          {notifications?.length === 0 ? (
             <p className="text-gray-500 text-center">Tidak ada notifikasi</p>
           ) : (
-            notifications.map((notif: Notification) => {
+            notifications?.map((notif: Notification) => {
               return (
                 <li
                   key={notif.id}

@@ -62,6 +62,7 @@ export default function FormPost() {
         theme: "colored",
       });
       mutate("/api/posts?type=all");
+      mutate("/api/posts?type=me");
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message);

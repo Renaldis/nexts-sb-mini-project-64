@@ -28,7 +28,7 @@ export default function EditPostDialog({
   setOpen,
 }: {
   postId: number;
-  currentContent: Post;
+  currentContent?: Post;
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
@@ -40,12 +40,12 @@ export default function EditPostDialog({
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { content: currentContent.content },
+    defaultValues: { content: currentContent?.content },
   });
 
   useEffect(() => {
-    setValue("content", currentContent.content);
-  }, [currentContent.content, setValue]);
+    setValue("content", currentContent?.content ?? "");
+  }, [currentContent?.content, setValue]);
 
   const onSubmit = async (data: FormData) => {
     try {
