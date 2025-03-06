@@ -81,7 +81,7 @@ export default function FormPost() {
               id="content"
               {...register("content")}
               className="w-full"
-              placeholder="create your post ..."
+              placeholder="Buat postingan sekarang ..."
             />
             {errors.content && (
               <p className="text-red-500 text-sm">{errors.content.message}</p>
@@ -93,7 +93,7 @@ export default function FormPost() {
             disabled={isSubmitting || !isValid}
             className="w-full cursor-pointer"
           >
-            {isSubmitting ? "Submitting..." : "Submit Post"}
+            {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
         </form>
       </CardContent>

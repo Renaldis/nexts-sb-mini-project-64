@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { replies } from "@/lib/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
@@ -33,7 +33,8 @@ export default async function handler(
       const response = await db
         .select()
         .from(replies)
-        .where(sql`${replies.post_id} = ${postIdNumber}`);
+        .where(sql`${replies.post_id} = ${postIdNumber}`)
+        .orderBy(desc(replies.updated_at));
 
       return res.status(200).json({
         message: "Success get data",

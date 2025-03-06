@@ -83,7 +83,6 @@ export default function UserPost() {
                     ""
                   )}
                 </div>
-                <DropDownMenuEdit postId={post.id} currentContent={post} />
               </CardHeader>
               <CardContent>
                 <p className="mb-3">{post.content}</p>

@@ -61,7 +61,7 @@ export default function MyPost() {
               </div>
               <div className="flex-1">
                 <p className="font-semibold">
-                  {profile?.name || "User"}{" "}
+                  {profile?.name || "User"}
                   <span className="text-gray-500">(You)</span>
                 </p>
                 <p className="text-sm text-gray-500">

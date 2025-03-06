@@ -60,7 +60,7 @@ const UserProfile = () => {
             </CardHeader>
           </div>
           <CardContent>
-            <div className="mt-4 grid grid-cols-2 gap-4 text-xs">
+            <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
               {userProfile.map((user, idx) => (
                 <div key={idx}>
                   <p className="font-semibold">{user.label}</p>

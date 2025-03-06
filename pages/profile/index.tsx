@@ -38,7 +38,7 @@ const UserProfile = () => {
       <Head>
         <title>Nexts Mini Project - MyProfile</title>
       </Head>
-      <div className="flex flex-col gap-4 overflow-y-scroll max-h-[100vh]">
+      <div className="flex flex-col gap-4 overflow-y-scroll min-h-screen">
         <Card>
           <div className="flex justify-center">
             <CardHeader className="flex flex-col items-center">
@@ -54,7 +54,7 @@ const UserProfile = () => {
             </CardHeader>
           </div>
           <CardContent>
-            <div className="mt-4 grid grid-cols-2 gap-4 text-xs">
+            <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
               {userProfile.map((user, idx) => (
                 <div key={idx}>
                   <p className="font-semibold">{user.label}</p>

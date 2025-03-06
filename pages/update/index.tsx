@@ -58,13 +58,22 @@ export default function EditPostDialog({
       if (!response.ok) throw new Error("Gagal mengupdate post");
 
       mutate("/api/posts?type=all");
-      toast.success("Post updated successfully!");
+      toast.success("Post updated successfully!", {
+        position: "top-center",
+        autoClose: 1000,
+      });
       setOpen(false);
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message);
+        toast.error(error.message, {
+          position: "top-center",
+          autoClose: 1000,
+        });
       } else {
-        toast.error("Terjadi kesalahan saat memperbarui post.");
+        toast.error("Terjadi kesalahan saat memperbarui post.", {
+          position: "top-center",
+          autoClose: 1000,
+        });
       }
     }
   };

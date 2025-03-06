@@ -5,6 +5,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
@@ -12,9 +18,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useSWR, { useSWRConfig } from "swr";
-import { Avatar, AvatarFallback } from "./ui/avatar";
 import { useProfile } from "@/context/profileContextProvider";
-import { Trash2 } from "lucide-react";
+import { Ellipsis } from "lucide-react";
 import Cookies from "js-cookie";
 import { Badge } from "./ui/badge";
 import { Replies, User } from "@/types";
@@ -38,7 +43,7 @@ export default function RepliesDialog({
   setOpen: (open: boolean) => void;
   posts: Post[];
 }) {
-  const { formatDate, profile } = useProfile();
+  const { formatDate, profile, getUserColor } = useProfile();
   const { mutate } = useSWRConfig();
   const {
     register,
@@ -94,7 +99,7 @@ export default function RepliesDialog({
             sender_id: Number(userIdCookies),
             type: "reply",
             post_id: postId,
-            message: `${profile?.name} Reply your post.`,
+            message: `${profile?.name} membalas postingan anda.`,
           }),
         });
       }
@@ -138,9 +143,9 @@ export default function RepliesDialog({
       <DialogContent className="w-[400px] h-screen overflow-y-auto bg-white text-slate-800 dark:text-slate-100 dark:bg-slate-800 my-5">
         <div className="overflow-y-auto">
           <div className="sticky top-0 z-50 bg-white dark:bg-slate-800">
-            <DialogHeader>
-              <DialogTitle>Replies Post</DialogTitle>
-              <DialogDescription>Create your own replies.</DialogDescription>
+            <DialogHeader className="mb-4">
+              <DialogTitle>Komentar</DialogTitle>
+              <DialogDescription>Tambahkan balasan Anda.</DialogDescription>
             </DialogHeader>
 
             <form
@@ -176,11 +181,14 @@ export default function RepliesDialog({
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm">
-                          <Avatar>
-                            <AvatarFallback className="bg-green-600 text-white font-bold text-sm">
-                              {user?.name.slice(0, 1)}
-                            </AvatarFallback>
-                          </Avatar>
+                          <div
+                            className="w-10 h-10 bg-green-500 text-white flex items-center justify-center rounded-full text-lg font-bold"
+                            style={{
+                              backgroundColor: getUserColor(user?.name),
+                            }}
+                          >
+                            {profile?.name?.charAt(0) || "U"}
+                          </div>
                           <span>{user?.name} </span>
                         </div>
 
@@ -194,11 +202,28 @@ export default function RepliesDialog({
                         )}
                       </div>
                       {Number(userIdLogin) === user?.id && (
-                        <Trash2
-                          className="hover:text-red-900 text-red-600 cursor-pointer"
-                          size={24}
-                          onClick={() => handleDeleteReply(replies.id)}
-                        />
+                        <div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger>
+                              <Ellipsis className="text-black cursor-pointer" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="absolute -right-6">
+                              <DropdownMenuItem>Edit</DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-red-500"
+                                onClick={() => handleDeleteReply(replies.id)}
+                              >
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+
+                          {/* <Trash2
+                            className="hover:text-red-900 text-red-600 cursor-pointer"
+                            size={24}
+                            onClick={() => handleDeleteReply(replies.id)}
+                          /> */}
+                        </div>
                       )}
                     </div>
                     <div className="flex flex-col space-y-3">
@@ -214,7 +239,7 @@ export default function RepliesDialog({
               })
             ) : (
               <p className="text-slate-400 text-center">
-                --------no reply available--------
+                --------Tidak ada balasan tersedia.--------
               </p>
             )}
           </div>

@@ -48,7 +48,7 @@ export const handleLike = async (
           sender_id: Number(userIdCookies),
           type: "like",
           post_id: post_id,
-          message: `${profile?.name} liked your post.`,
+          message: `${profile?.name} menyukai postingan anda.`,
         }),
       });
 
