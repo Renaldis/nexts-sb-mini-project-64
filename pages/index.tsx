@@ -121,7 +121,8 @@ export default function Home() {
                     <span>{postReplies?.length}</span>
                     <span
                       onClick={() => {
-                        setOpen(true), setSelectedPost(post);
+                        setOpen(true);
+                        setSelectedPost(post);
                       }}
                     >
                       Replies

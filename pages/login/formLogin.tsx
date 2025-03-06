@@ -12,10 +12,12 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { UseFormReturn } from "react-hook-form";
+import { formSchemaLogin } from ".";
+import { z } from "zod";
 
 type FormLogin = {
-  form: UseFormReturn<any>;
-  onSubmit: (values: any) => void;
+  form: UseFormReturn<z.infer<typeof formSchemaLogin>>;
+  onSubmit: (values: z.infer<typeof formSchemaLogin>) => Promise<void>;
   loading: boolean;
 };
 
@@ -80,7 +82,7 @@ export default function FormLogin({ form, onSubmit, loading }: FormLogin) {
             {loading ? "Loading..." : "Login"}
           </Button>
           <span className="text-sm">
-            Don't have an account ?
+            Dont have an account ?
             <Link
               href="/register"
               className="ml-2 font-semibold hover:border-b"

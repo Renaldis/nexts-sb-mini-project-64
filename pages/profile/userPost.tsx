@@ -1,9 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import Cookies from "js-cookie";
-import useSWR, { mutate } from "swr";
-
+import useSWR from "swr";
 import { Heart, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { useProfile } from "@/context/profileContextProvider";
@@ -11,35 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import DropDownMenuEdit from "@/components/dropDownMenuEdit";
 import RepliesDialog from "@/components/replies";
 import { useRouter } from "next/router";
+import { Post, User, Likes, Replies } from "@/types";
+import { handleLike } from "@/utils/likeService";
 
-interface Post {
-  id: number;
-  content: string;
-  created_at: string;
-  updated_at: string;
-  user_id: number;
-}
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
-interface Replies {
-  id: number;
-  content: string;
-  post_id: number;
-  user_id: number;
-}
-
-interface Likes {
-  id: number;
-  user_id: number;
-  post_id: number;
-}
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function UserPost() {
   const router = useRouter();
+
   const { id } = router.query;
   const { data, error, isLoading } = useSWR(
     `/api/posts/user?userId=${id}`,
@@ -49,7 +26,7 @@ export default function UserPost() {
   const { data: usersData } = useSWR("/api/users", fetcher);
   const { data: repliesData } = useSWR(`/api/replies/post`, fetcher);
   const { data: likesData } = useSWR("/api/likes", fetcher);
-  const { loading, formatDate, getUserColor } = useProfile();
+  const { loading, formatDate, getUserColor, profile } = useProfile();
 
   const myId = Cookies.get("userId");
 
@@ -65,57 +42,6 @@ export default function UserPost() {
   const users: User[] = usersData?.data || [];
   const likes: Likes[] = likesData?.data || [];
 
-  const handleLike = async (post_id: number) => {
-    const userIdCookies = Cookies.get("userId");
-    if (!userIdCookies) toast.error("must login first");
-    try {
-      const response = await fetch("/api/likes/post", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: Number(userIdCookies),
-          post_id: Number(post_id),
-        }),
-      });
-
-      const result = await response.json();
-      if (!response.ok)
-        throw new Error(result.message || "Gagal mengupdate post");
-      mutate("/api/likes");
-      toast.success(result.message, {
-        autoClose: 1000,
-        position: "top-center",
-      });
-
-      const postOwner = posts.find((post) => post.id === post_id)?.user_id;
-      if (postOwner && Number(postOwner) !== Number(userIdCookies)) {
-        const responseNotif = await fetch("/api/notifications", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_id: postOwner,
-            sender_id: Number(userIdCookies),
-            type: "like",
-            post_id: post_id,
-            message: `User ${userIdCookies} liked your post.`,
-          }),
-        });
-        const notifResult = await responseNotif.json();
-        if (notifResult.message !== "Notifikasi sudah ada") {
-          console.log("Notifikasi berhasil dikirim");
-        }
-      }
-    } catch (error: any) {
-      toast.error(error.message || "Terjadi kesalahan saat memperbarui post.", {
-        autoClose: 1000,
-        position: "top-center",
-      });
-    }
-  };
   return (
     <>
       <div className="space-y-4 h-screen">
@@ -128,6 +54,7 @@ export default function UserPost() {
           const postReplies = repliesData?.data.filter(
             (r: Replies) => r.post_id === post.id
           );
+
           return (
             <Card className="p-4 border w-full max-w-md" key={post.id}>
               <CardHeader className="flex flex-row items-center space-x-3">
@@ -158,7 +85,7 @@ export default function UserPost() {
                 <div className="flex items-center space-x-4 text-gray-500">
                   <button
                     className="flex items-center space-x-1 hover:font-bold cursor-pointer"
-                    onClick={() => handleLike(post?.id)}
+                    onClick={() => handleLike(post.id, posts, profile)}
                   >
                     {LikedUser ? (
                       <Heart size={16} color="red" />
@@ -173,7 +100,8 @@ export default function UserPost() {
                     <span>{postReplies?.length}</span>
                     <span
                       onClick={() => {
-                        setOpen(true), setSelectedPost(post);
+                        setOpen(true);
+                        setSelectedPost(post);
                       }}
                     >
                       Replies

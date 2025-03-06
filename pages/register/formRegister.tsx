@@ -1,3 +1,5 @@
+ 
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -12,10 +14,12 @@ import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { UseFormReturn } from "react-hook-form";
 import { useState } from "react";
+import { formSchemaRegister } from ".";
+import { z } from "zod";
 
 type FormRegisterProps = {
-  form: UseFormReturn<any>;
-  onSubmit: (values: any) => void;
+  form: UseFormReturn<z.infer<typeof formSchemaRegister>>;
+  onSubmit: (values: z.infer<typeof formSchemaRegister>) => void;
   loading: boolean;
 };
 

@@ -25,7 +25,6 @@ export default async function handler(
       if (!user_id)
         return res.status(400).json({ error: "User ID diperlukan" });
 
-      // Query dengan JOIN untuk mendapatkan sender_name dari tabel users
       const data: Notification[] = await db
         .select({
           id: notifications.id,

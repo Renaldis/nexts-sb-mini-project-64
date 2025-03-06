@@ -1,8 +1,6 @@
 import { useRouter } from "next/router";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import FormPost from "@/components/formPost";
-import MyPost from "./myPost";
 import useSWR from "swr";
 import UserPost from "./userPost";
 import { useProfile } from "@/context/profileContextProvider";

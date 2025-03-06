@@ -8,15 +8,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import EditPostDialog from "@/pages/update";
-import { useSWRConfig } from "swr";
+import { mutate } from "swr";
 import { toast } from "react-toastify";
-
-interface Post {
-  id: number;
-  content: string;
-  created_at: string;
-  user_id: number;
-}
+import type { Post } from "@/types";
 
 export default function DropDownMenuEdit({
   postId,
@@ -26,7 +20,6 @@ export default function DropDownMenuEdit({
   currentContent: Post;
 }) {
   const [open, setOpen] = useState(false);
-  const { mutate } = useSWRConfig();
   const handleDelete = async () => {
     try {
       const response = await fetch(`/api/posts/delete`, {
@@ -43,8 +36,10 @@ export default function DropDownMenuEdit({
         autoClose: 1000,
         position: "top-center",
       });
-    } catch (error: any) {
-      toast.error(error.message || "Terjadi kesalahan saat menghapus post.");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Terjadi kesalahan saat menghapus post.");
+      }
     }
   };
 

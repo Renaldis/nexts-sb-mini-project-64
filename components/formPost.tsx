@@ -1,13 +1,12 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast, ToastContainer } from "react-toastify";
 import Cookies from "js-cookie";
-import { useRouter } from "next/router";
-import useSWR, { mutate } from "swr";
+import { mutate } from "swr";
 
 const formSchema = z.object({
   content: z.string().min(3, { message: "Content minimal 3 karakter" }),
@@ -16,8 +15,6 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export default function FormPost() {
-  const router = useRouter();
-
   const {
     register,
     handleSubmit,
@@ -65,8 +62,12 @@ export default function FormPost() {
         theme: "colored",
       });
       mutate("/api/posts?type=all");
-    } catch (error: any) {
-      toast.error(error.message || "Terjadi kesalahan, coba lagi.");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Terjadi kesalahan, coba lagi.");
+      }
     }
   };
 

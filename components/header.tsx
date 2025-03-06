@@ -5,22 +5,19 @@ import {
   MenubarMenu,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 import { Bell, ChevronDown, LogOut, UserIcon } from "lucide-react";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
-import { useProfile } from "@/context/profileContextProvider";
 import { useEffect, useState } from "react";
-import { cookies } from "next/headers";
 import useSWR from "swr";
-import { toast } from "react-toastify";
-import { redirect } from "next/navigation";
+
+import ProfileAvatar from "./profileAvatar";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const Header = () => {
-  const { profile, getUserColor } = useProfile();
   const router = useRouter();
   async function handleLogout() {
     Cookies.remove("sb_token");
@@ -33,9 +30,8 @@ const Header = () => {
     if (Cookies.get("sb_token")) setIsLogin(true);
   }, []);
 
-  const { data } = useSWR("/api/me", fetcher);
   const user_id = Cookies.get("userId");
-  const { data: dataNotification, error: notifError } = useSWR(
+  const { data: dataNotification } = useSWR(
     user_id ? `/api/notifications?user_id=${user_id}` : null,
     fetcher
   );
@@ -51,14 +47,7 @@ const Header = () => {
             <Menubar>
               <MenubarMenu>
                 <MenubarTrigger className="flex gap-1 cursor-pointer">
-                  <Avatar>
-                    <AvatarFallback
-                      className="bg-green-600 text-white font-bold"
-                      style={{ backgroundColor: getUserColor(data?.data.name) }}
-                    >
-                      {profile?.name.slice(0, 1)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <ProfileAvatar />
                   <ChevronDown />
                 </MenubarTrigger>
 

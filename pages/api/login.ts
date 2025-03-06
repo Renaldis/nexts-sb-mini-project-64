@@ -39,7 +39,6 @@ export default async function handler(
 
     const storedUser = user[0];
 
-    // Cek password
     const isMatch = await bcrypt.compare(password, storedUser.password);
     if (!isMatch) {
       console.log("Password mismatch");
@@ -48,7 +47,6 @@ export default async function handler(
         .json({ success: false, message: "Invalid email or password" });
     }
 
-    // Buat token JWT
     const token = jwt.sign(
       { id: storedUser.id, email: storedUser.email },
       SECRET_KEY,

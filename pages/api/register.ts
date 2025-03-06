@@ -29,7 +29,6 @@ export default async function handler(
       payload.password = await bcrypt.hash(payload.password, saltRounds);
     }
 
-    // Insert ke database
     const data = await db
       .insert(users)
       .values(payload)

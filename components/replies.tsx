@@ -17,7 +17,8 @@ import { useProfile } from "@/context/profileContextProvider";
 import { Trash2 } from "lucide-react";
 import Cookies from "js-cookie";
 import { Badge } from "./ui/badge";
-import { Post, Replies, Likes, User } from "@/types";
+import { Replies, User } from "@/types";
+import type { Post } from "@/types";
 
 const formSchema = z.object({
   content: z.string().min(3, { message: "Replies minimal 3 karakter" }),
@@ -35,9 +36,9 @@ export default function RepliesDialog({
   postId: number | undefined;
   open: boolean;
   setOpen: (open: boolean) => void;
-  posts: any;
+  posts: Post[];
 }) {
-  const { formatDate } = useProfile();
+  const { formatDate, profile } = useProfile();
   const { mutate } = useSWRConfig();
   const {
     register,
@@ -74,7 +75,7 @@ export default function RepliesDialog({
 
       const userIdCookies = Cookies.get("userId");
       if (!userIdCookies) toast.error("must login first");
-      const postOwner = posts.find((post: any) => post.id === postId)?.user_id;
+      const postOwner = posts.find((post: Post) => post.id === postId)?.user_id;
       if (postOwner && Number(postOwner) !== Number(userIdCookies)) {
         await fetch("/api/notifications", {
           method: "POST",
@@ -86,12 +87,16 @@ export default function RepliesDialog({
             sender_id: Number(userIdCookies),
             type: "reply",
             post_id: postId,
-            message: `User ${userIdCookies} Reply your post.`,
+            message: `${profile?.name} Reply your post.`,
           }),
         });
       }
-    } catch (error: any) {
-      toast.error(error.message || "Terjadi kesalahan saat memperbarui post.");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Terjadi kesalahan saat memperbarui post.");
+      }
     }
   };
   const users: User[] = usersData?.data || [];

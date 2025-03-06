@@ -17,12 +17,13 @@ export default async function handler(
       message: "Semua users",
       data: allUsers,
     });
-  } catch (error: any) {
-    console.error("Database Error:", error);
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Terjadi kesalahan server";
 
     return res.status(500).json({
       message: "Gagal mengambil data users",
-      error: error.message,
+      error: errorMessage,
     });
   }
 }

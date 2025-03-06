@@ -29,3 +29,17 @@ export type Likes = {
   user_id: number;
   post_id: number;
 };
+
+export type Notification = {
+  id: number;
+  user_id: number;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+  sender_id: string;
+  sender_name: string;
+  post_id: number;
+  reply_id: number;
+  like_id: number;
+  type: string;
+};

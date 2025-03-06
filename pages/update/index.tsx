@@ -1,6 +1,5 @@
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -12,17 +11,10 @@ import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import useSWR, { useSWRConfig } from "swr";
+import { useSWRConfig } from "swr";
 import { useEffect } from "react";
+import type { Post } from "@/types";
 
-interface Post {
-  id: number;
-  content: string;
-  created_at: string;
-  user_id: number;
-}
-
-// Skema validasi dengan Zod
 const formSchema = z.object({
   content: z.string().min(3, { message: "Content minimal 3 karakter" }),
 });
@@ -55,7 +47,6 @@ export default function EditPostDialog({
     setValue("content", currentContent.content);
   }, [currentContent.content, setValue]);
 
-  // Fungsi untuk submit edit post
   const onSubmit = async (data: FormData) => {
     try {
       const response = await fetch(`/api/posts/update`, {
@@ -69,8 +60,12 @@ export default function EditPostDialog({
       mutate("/api/posts?type=all");
       toast.success("Post updated successfully!");
       setOpen(false);
-    } catch (error: any) {
-      toast.error(error.message || "Terjadi kesalahan saat memperbarui post.");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Terjadi kesalahan saat memperbarui post.");
+      }
     }
   };
 

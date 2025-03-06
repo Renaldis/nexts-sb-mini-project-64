@@ -20,8 +20,12 @@ export default async function handler(
           message: "Success get data",
           data: response || [],
         });
-      } catch (error) {
-        return res.status(500).json({ message: "Error fetching replies" });
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Terjadi kesalahan server";
+        return res
+          .status(500)
+          .json({ message: "Error fetching replies", error: errorMessage });
       }
     }
 
@@ -35,8 +39,12 @@ export default async function handler(
         message: "Success get data",
         replies: response || [],
       });
-    } catch (error) {
-      return res.status(500).json({ message: "Error fetching replies" });
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Terjadi kesalahan server";
+      return res
+        .status(500)
+        .json({ message: "Error fetching replies", error: errorMessage });
     }
   }
 
@@ -56,8 +64,12 @@ export default async function handler(
       });
 
       return res.status(201).json({ message: "Reply added successfully" });
-    } catch (error) {
-      return res.status(500).json({ message: "Error adding reply", error });
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Terjadi kesalahan server";
+      return res
+        .status(500)
+        .json({ message: "Error adding reply", error: errorMessage });
     }
   }
 
@@ -70,8 +82,12 @@ export default async function handler(
       await db.delete(replies).where(eq(replies.id, id));
 
       return res.status(200).json({ message: "Reply deleted successfully" });
-    } catch (error) {
-      return res.status(500).json({ message: "Error deleting reply", error });
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Terjadi kesalahan server";
+      return res
+        .status(500)
+        .json({ message: "Error deleting reply", error: errorMessage });
     }
   }
 

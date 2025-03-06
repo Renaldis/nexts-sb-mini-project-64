@@ -25,15 +25,18 @@ export default async function handler(
       .from(users)
       .where(eq(users.id, userIdNumber))
       .execute();
-    // const userById = await db.select().from(users).where(eq(users.id, 6));
 
     if (!userById || userById.length === 0) {
       return res.status(404).json({ message: "User not found" });
     }
 
     return res.status(200).json({ data: userById[0] });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Terjadi kesalahan server";
     console.error("Database Error:", error);
-    return res.status(500).json({ message: "Gagal mengambil data user" });
+    return res
+      .status(500)
+      .json({ message: "Gagal mengambil data user", error: errorMessage });
   }
 }

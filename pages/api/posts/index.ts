@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { db } from "@/lib/db"; // Pastikan lokasi file koneksi database benar
 import { posts } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export default async function handler(
   req: NextApiRequest,
@@ -12,7 +12,10 @@ export default async function handler(
       const { type } = req.query;
       const { userId } = req.cookies;
       if (type === "all") {
-        const allPosts = await db.select().from(posts);
+        const allPosts = await db
+          .select()
+          .from(posts)
+          .orderBy(desc(posts.created_at));
         return res.status(200).json({ message: "Semua posts", data: allPosts });
       }
 
@@ -25,7 +28,8 @@ export default async function handler(
         const myPosts = await db
           .select()
           .from(posts)
-          .where(eq(posts.user_id, user_id));
+          .where(eq(posts.user_id, user_id))
+          .orderBy(desc(posts.created_at));
 
         return res
           .status(200)
