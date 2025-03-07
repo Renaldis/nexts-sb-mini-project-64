@@ -160,7 +160,7 @@ export default function Register() {
                   Phone <span className="text-red-700">*</span>
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="Phone ..." {...field} />
+                  <Input placeholder="Phone ..." {...field} type="number" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -209,7 +209,7 @@ export default function Register() {
           />
           <Button
             type="submit"
-            className="w-full bg-blue-600"
+            className="w-full bg-blue-600 cursor-pointer"
             disabled={loading}
           >
             {loading ? "Loading..." : "Register"}
