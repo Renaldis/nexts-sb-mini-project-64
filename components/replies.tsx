@@ -24,6 +24,7 @@ import Cookies from "js-cookie";
 import { Badge } from "./ui/badge";
 import { Replies, User } from "@/types";
 import type { Post } from "@/types";
+import { useState } from "react";
 
 const formSchema = z.object({
   content: z.string().min(3, { message: "Replies minimal 3 karakter" }),
@@ -60,15 +61,23 @@ export default function RepliesDialog({
   );
   const { data: usersData } = useSWR("/api/users", fetcher);
 
+  const [isEdit, setIsEdit] = useState(false);
+  const [editReplies, setEditReplies] = useState<Replies | null>(null);
+  const [replyContent, setReplyContent] = useState("");
+
   const onSubmit = async (data: FormData) => {
     try {
-      const response = await fetch(`/api/replies/post`, {
-        method: "POST",
+      const url = isEdit ? `/api/replies/update` : `/api/replies/post`;
+      const method = isEdit ? "PATCH" : "POST";
+      const body = JSON.stringify(
+        isEdit
+          ? { reply_id: editReplies?.id, content: replyContent }
+          : { post_id: postId, content: data.content.trim() }
+      );
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          post_id: postId,
-          content: data.content.trim(),
-        }),
+        body,
       });
 
       if (!response.ok) throw new Error("Gagal mengupdate post");
@@ -79,7 +88,10 @@ export default function RepliesDialog({
         autoClose: 1000,
         position: "top-center",
       });
+      setIsEdit(false);
+      setEditReplies(null);
       reset();
+      setReplyContent("");
 
       const userIdCookies = Cookies.get("userId");
       if (!userIdCookies)
@@ -136,7 +148,22 @@ export default function RepliesDialog({
       });
     }
   };
+  const handleEdit = (replies: Replies) => {
+    setIsEdit(true);
+    setEditReplies(replies);
+    setReplyContent(replies.content);
+  };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setReplyContent(e.target.value);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEdit(false);
+    setEditReplies(null);
+    setReplyContent("");
+    reset();
+  };
   const userIdLogin = Cookies.get("userId");
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -156,17 +183,39 @@ export default function RepliesDialog({
                 {...register("content")}
                 className="w-full bg-blue-50 dark:text-slate-800"
                 placeholder="your replies ..."
+                value={replyContent}
+                onChange={handleInputChange}
               />
               {errors.content && (
                 <p className="text-red-500 text-sm">{errors.content.message}</p>
               )}
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="cursor-pointer w-full mb-4"
-              >
-                {isSubmitting ? "Submitting..." : "Submit Reply"}
-              </Button>
+              {!isEdit ? (
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="cursor-pointer w-full mb-4"
+                >
+                  {isSubmitting ? "Submitting..." : "Submit Reply"}
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="cursor-pointer w-full mb-4"
+                  >
+                    {isSubmitting ? "Saving Changes..." : "Save Changes"}
+                  </Button>
+                  <Button
+                    type="button"
+                    disabled={isSubmitting}
+                    className="cursor-pointer w-full mb-4"
+                    onClick={handleCancelEdit}
+                  >
+                    {isSubmitting ? "Cancelling..." : "Cancel"}
+                  </Button>
+                </div>
+              )}
             </form>
           </div>
           <div className="space-y-2 mb-10">
@@ -205,10 +254,14 @@ export default function RepliesDialog({
                         <div>
                           <DropdownMenu>
                             <DropdownMenuTrigger>
-                              <Ellipsis className="text-black cursor-pointer" />
+                              <Ellipsis className="text-black cursor-pointer dark:text-white" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="absolute -right-6">
-                              <DropdownMenuItem>Edit</DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleEdit(replies)}
+                              >
+                                Edit
+                              </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="text-red-500"
                                 onClick={() => handleDeleteReply(replies.id)}
@@ -217,19 +270,25 @@ export default function RepliesDialog({
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
-
-                          {/* <Trash2
-                            className="hover:text-red-900 text-red-600 cursor-pointer"
-                            size={24}
-                            onClick={() => handleDeleteReply(replies.id)}
-                          /> */}
                         </div>
                       )}
                     </div>
                     <div className="flex flex-col space-y-3">
-                      <span className="text-sm text-slate-600 dark:text-slate-300">
-                        {formatDate(replies.created_at)}
-                      </span>
+                      <div className="space-x-2">
+                        <span className="text-sm text-slate-600 dark:text-slate-300">
+                          {formatDate(replies.created_at)} lalu
+                        </span>
+                        {replies.created_at !== replies.updated_at ? (
+                          <Badge
+                            variant="outline"
+                            className="text-slate-600 dark:text-slate-100"
+                          >
+                            Edited
+                          </Badge>
+                        ) : (
+                          ""
+                        )}
+                      </div>
                       <span className="text-sm text-black dark:text-slate-300">
                         {replies.content}
                       </span>

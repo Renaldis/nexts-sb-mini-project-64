@@ -11,10 +11,10 @@ export default async function handler(
     return res.status(405).json({ message: "Method Not Allowed" });
   }
 
-  const { content, post_id } = req.body;
+  const { content, reply_id } = req.body;
   const userId = req.cookies.userId ? parseInt(req.cookies.userId, 10) : null;
 
-  if (!post_id || !userId || !content?.trim()) {
+  if (!reply_id || !userId || !content?.trim()) {
     return res.status(400).json({ message: "Missing or invalid fields" });
   }
 
@@ -22,7 +22,7 @@ export default async function handler(
     const existingReply = await db
       .select()
       .from(replies)
-      .where(and(eq(replies.post_id, post_id), eq(replies.user_id, userId)))
+      .where(and(eq(replies.id, reply_id), eq(replies.user_id, userId)))
       .limit(1)
       .execute();
 
@@ -38,8 +38,8 @@ export default async function handler(
 
     await db
       .update(replies)
-      .set({ content: content.trim() })
-      .where(and(eq(replies.post_id, post_id), eq(replies.user_id, userId)))
+      .set({ content: content.trim(), updated_at: new Date() })
+      .where(and(eq(replies.id, reply_id), eq(replies.user_id, userId)))
       .execute();
 
     return res.status(200).json({ message: "Reply updated successfully" });

@@ -16,6 +16,7 @@ const UserProfile = () => {
     {
       label: "Email",
       profile: profile?.email,
+      className: "mr-2",
     },
     {
       label: "Hobby",
@@ -26,6 +27,7 @@ const UserProfile = () => {
       profile: profile?.birth_date
         ? new Date(profile.birth_date).toLocaleDateString("id-ID")
         : "N/A",
+      className: "mr-10",
     },
     {
       label: "Phone",
@@ -56,7 +58,7 @@ const UserProfile = () => {
           <CardContent>
             <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
               {userProfile.map((user, idx) => (
-                <div key={idx}>
+                <div key={idx} className={`mr-10`}>
                   <p className="font-semibold">{user.label}</p>
                   <p className="text-gray-600">{user.profile}</p>
                 </div>

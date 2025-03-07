@@ -67,19 +67,21 @@ export default function MyPost() {
                 <p className="text-sm text-gray-500">
                   {profile?.email || "N/A"}
                 </p>
-                <p className="text-xs text-gray-400">
-                  {formatDate(post.created_at)}
-                </p>
-                {post.created_at !== post.updated_at ? (
-                  <Badge
-                    variant="outline"
-                    className="text-slate-600 dark:text-slate-100"
-                  >
-                    Edited
-                  </Badge>
-                ) : (
-                  ""
-                )}
+                <div className="flex items-center gap-4 mt-2">
+                  <p className="text-xs text-gray-400">
+                    {formatDate(post.created_at)} lalu
+                  </p>
+                  {post.created_at !== post.updated_at ? (
+                    <Badge
+                      variant="outline"
+                      className="text-slate-600 dark:text-slate-100"
+                    >
+                      Edited
+                    </Badge>
+                  ) : (
+                    ""
+                  )}
+                </div>
               </div>
               <DropDownMenuEdit postId={post.id} currentContent={post} />
             </CardHeader>

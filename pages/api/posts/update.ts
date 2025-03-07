@@ -16,14 +16,12 @@ export default async function handler(
   try {
     const { id, content } = req.body;
 
-    // Validasi data
     if (!id || !content) {
       return res
         .status(400)
         .json({ success: false, message: "ID dan content harus diisi" });
     }
 
-    // Update post berdasarkan ID
     const editPost = await db
       .update(posts)
       .set({ content, updated_at: new Date() })

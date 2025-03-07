@@ -23,6 +23,7 @@ export type Replies = {
   post_id: number;
   user_id: number;
   created_at: string;
+  updated_at: string;
 };
 export type Likes = {
   id: number;

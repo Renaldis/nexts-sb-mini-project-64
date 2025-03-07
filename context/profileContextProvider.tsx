@@ -55,9 +55,22 @@ export const ProfileProvider = ({
       setLoading(false);
     }
   }, [isLogin]);
-  function formatDate(value: string) {
+  function formatDate(value: string): string {
     const date = new Date(value);
-    return date.toDateString();
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return "baru saja";
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} mnt`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} jm`;
+    if (diffInSeconds < 604800)
+      return `${Math.floor(diffInSeconds / 86400)} hr`;
+    if (diffInSeconds < 2592000)
+      return `${Math.floor(diffInSeconds / 604800)} mgg`;
+    if (diffInSeconds < 31536000)
+      return `${Math.floor(diffInSeconds / 2592000)} bln`;
+
+    return `${Math.floor(diffInSeconds / 31536000)} thn`;
   }
   function getUserColor(name: string | undefined) {
     if (!name) return "#000000"; // Default warna jika nama tidak ada
